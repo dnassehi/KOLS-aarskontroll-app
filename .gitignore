@@ -1,0 +1,21 @@
+# Secrets
+.env
+.env.*
+!.env.example
+.secrets/
+
+# Node / Next
+node_modules/
+web/node_modules/
+.next/
+web/.next/
+
+# Logs/build
+*.log
+dist/
+coverage/
+
+# Local/editor
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SmokeStatus {
+  ALDRI
+  TIDLIGERE
+  NAVAERENDE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  reviews  AnnualReview[]
+  patients Patient[]
+}
+
+model Patient {
+  id          String   @id @default(cuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  patientCode String
+  name        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reviews AnnualReview[]
+
+  @@unique([ownerId, patientCode])
+}
+
+model AnnualReview {
+  id        String   @id @default(cuid())
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  reviewYear Int
+  reviewDate DateTime @default(now())
+  createdById String
+  createdBy   User    @relation(fields: [createdById], references: [id])
+
+  // kliniske felt
+  catScore Int?
+  mmrc     Int?
+
+  exacerbationsLast12m Int?
+  hospitalizationsLast12m Int?
+
+  fev1L            Float?
+  fev1PercentPred  Float?
+  fvcL             Float?
+  fev1Fvc          Float?
+
+  spo2       Float?
+  eosinophils Float?
+
+  smokeStatus SmokeStatus?
+  smokingActive Boolean?
+  packYears   Float?
+
+  heightCm Float?
+  weightKg Float?
+  bmi      Float?
+  chestXrayYear Int?
+
+  comorbCvd            Boolean @default(false)
+  comorbKidneyDisease  Boolean @default(false)
+  comorbDiabetesMetSyn Boolean @default(false)
+  comorbOsteoporosis   Boolean @default(false)
+  comorbAnxietyDepression Boolean @default(false)
+
+  // medikamentklasser
+  medLaba Boolean @default(false)
+  medLama Boolean @default(false)
+  medIcs  Boolean @default(false)
+  medSama Boolean @default(false)
+  medSaba Boolean @default(false)
+  medPde4 Boolean @default(false)
+
+  influenzaDate  DateTime?
+  pneumococcalDate DateTime?
+  covidDate      DateTime?
+  rsvDate        DateTime?
+
+  // generert støtte
+  obstructionGrade String?
+  symptomBurden    String?
+  riskLevel        String?
+  treatmentStepSuggestion String?
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([patientId, reviewYear])
+}

@@ -96,7 +96,7 @@ nohup pnpm dev > /tmp/kols-dev.log 2>&1 &
 ```
 Stopp igjen:
 ```bash
-pkill -f "next dev -p 3010"
+pkill -f "next dev"
 ```
 
 ### Hvis databasen ikke kjører
@@ -107,6 +107,13 @@ Appen bruker PostgreSQL via `DATABASE_URL` i `web/.env`.
 Eksempel uten Docker:
 ```env
 DATABASE_URL=postgresql://<user>:<pass>@localhost:5432/<db>?schema=public
+```
+
+## Migrering i Docker (produksjonsnært)
+Etter schema-endringer, kjør migrering i container:
+```bash
+cd kols-arskontroll-app
+docker compose run --rm app pnpm prisma migrate deploy
 ```
 
 ## Viktig

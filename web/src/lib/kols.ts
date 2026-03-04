@@ -118,6 +118,9 @@ export function compactJournalNote(data: {
   weightKg?: number | null;
   bmi?: number | null;
   chestXrayYear?: number | null;
+  chestXrayMonth?: number | null;
+  spirometryDate?: string | null;
+  reviewDate?: string | null;
   comorbidities?: string[];
   meds: string[];
   plan?: string | null;
@@ -147,13 +150,15 @@ export function compactJournalNote(data: {
     `- Risiko: ${risk}`,
     "",
     "Spirometri og målinger",
+    `- Dato for utfylling: ${data.reviewDate ?? "ikke registrert"}`,
+    `- Dato for spirometri: ${data.spirometryDate ?? "ikke registrert"}`,
     `- FEV1: ${data.fev1L ?? "mangler"} L/s`,
     `- FEV1 % pred: ${data.fev1PercentPred ?? "mangler"}`,
     `- FVC: ${data.fvcL ?? "mangler"} L`,
     `- FEV1/FVC: ${data.fev1Fvc ?? "mangler"}`,
     `- Røyker nå: ${data.smokingActive == null ? "ikke registrert" : data.smokingActive ? "Ja" : "Nei"}`,
     `- Høyde/vekt/BMI: ${data.heightCm ?? "mangler"} cm / ${data.weightKg ?? "mangler"} kg / ${data.bmi == null ? "mangler" : data.bmi.toFixed(2)} (${bmiCategory})`,
-    `- Røntgen thorax sist tatt: ${data.chestXrayYear ?? "ikke registrert"}`,
+    `- Røntgen thorax sist tatt: ${data.chestXrayMonth && data.chestXrayYear ? `${String(data.chestXrayMonth).padStart(2, "0")}/${data.chestXrayYear}` : (data.chestXrayYear ?? "ikke registrert")}`,
     "",
     "Komorbiditet og behandling",
     `- Komorbiditeter: ${data.comorbidities && data.comorbidities.length ? data.comorbidities.join(", ") : "ingen registrert"}`,

@@ -41,9 +41,12 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     weightKg: review.weightKg,
     bmi: review.bmi,
     chestXrayYear: review.chestXrayYear,
+    chestXrayMonth: review.chestXrayMonth,
+    spirometryDate: review.spirometryDate ? review.spirometryDate.toISOString().slice(0, 10) : null,
+    reviewDate: review.reviewDate ? review.reviewDate.toISOString().slice(0, 10) : null,
     comorbidities,
     meds,
-    plan: review.treatmentStepSuggestion || review.notes,
+    plan: review.planOrTiltak || review.treatmentStepSuggestion || review.notes,
   });
 
   return new NextResponse(text, { headers: { "content-type": "text/plain; charset=utf-8" } });

@@ -30,6 +30,10 @@ function formatNbDecimal(v: number | null, digits = 2) {
   return v.toFixed(digits).replace(".", ",");
 }
 
+function todayIsoDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export default function EditReviewPage() {
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
@@ -66,6 +70,9 @@ export default function EditReviewPage() {
         heightCm: toNbString(j.heightCm),
         weightKg: toNbString(j.weightKg),
         chestXrayYear: j.chestXrayYear ?? "",
+        chestXrayMonth: j.chestXrayMonth ?? "",
+        spirometryDate: j.spirometryDate ? String(j.spirometryDate).slice(0, 10) : todayIsoDate(),
+        reviewDate: j.reviewDate ? String(j.reviewDate).slice(0, 10) : todayIsoDate(),
         comorbCvd: !!j.comorbCvd,
         comorbKidneyDisease: !!j.comorbKidneyDisease,
         comorbDiabetesMetSyn: !!j.comorbDiabetesMetSyn,
@@ -82,6 +89,7 @@ export default function EditReviewPage() {
         covidDate: j.covidDate ? String(j.covidDate).slice(0, 10) : "",
         rsvDate: j.rsvDate ? String(j.rsvDate).slice(0, 10) : "",
         notes: j.notes ?? "",
+        planOrTiltak: j.planOrTiltak ?? "",
       });
       setLoading(false);
     })();
@@ -145,6 +153,11 @@ export default function EditReviewPage() {
       e.chestXrayYear = `Årstall må være et heltall mellom 1950 og ${nowYear}`;
     }
 
+    const chestXrayMonth = parseNbNumber(form.chestXrayMonth);
+    if (chestXrayMonth != null && (!Number.isInteger(chestXrayMonth) || chestXrayMonth < 1 || chestXrayMonth > 12)) {
+      e.chestXrayMonth = "Måned må være heltall fra 1 til 12";
+    }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -176,6 +189,10 @@ export default function EditReviewPage() {
       weightKg: parseNbNumber(form.weightKg),
       bmi: autoBmi == null ? null : Number(autoBmi.toFixed(2)),
       chestXrayYear: parseNbNumber(form.chestXrayYear),
+      chestXrayMonth: parseNbNumber(form.chestXrayMonth),
+      spirometryDate: form.spirometryDate || null,
+      reviewDate: form.reviewDate || null,
+      planOrTiltak: form.planOrTiltak || null,
     };
 
     const r = await fetch(`/api/reviews/${id}`, {
@@ -231,6 +248,9 @@ export default function EditReviewPage() {
           <label>FEV1/FVC (auto) <input value={autoFev1Fvc == null ? "" : formatNbDecimal(autoFev1Fvc)} readOnly />{errors.fev1Fvc && <div className="error">{errors.fev1Fvc}</div>}</label>
           <label>SpO2 <input value={String(form.spo2 ?? "")} onChange={(e) => setValue("spo2", e.target.value)} />{errors.spo2 && <div className="error">{errors.spo2}</div>}</label>
           <label>Eosinofile <input value={String(form.eosinophils ?? "")} onChange={(e) => setValue("eosinophils", e.target.value)} />{errors.eosinophils && <div className="error">{errors.eosinophils}</div>}</label>
+          <label>Dato for spirometri
+            <input type="date" value={String(form.spirometryDate ?? "")} onChange={(e) => setValue("spirometryDate", e.target.value)} />
+          </label>
         </div>
       </section>
 
@@ -244,7 +264,11 @@ export default function EditReviewPage() {
               <option value="false">Nei</option>
             </select>
           </label>
-          <label>Røntgen thorax (siste årstall)
+          <label>Røntgen thorax (måned)
+            <input value={String(form.chestXrayMonth ?? "")} onChange={(e) => setValue("chestXrayMonth", e.target.value)} />
+            {errors.chestXrayMonth && <div className="error">{errors.chestXrayMonth}</div>}
+          </label>
+          <label>Røntgen thorax (år)
             <input value={String(form.chestXrayYear ?? "")} onChange={(e) => setValue("chestXrayYear", e.target.value)} />
             {errors.chestXrayYear && <div className="error">{errors.chestXrayYear}</div>}
           </label>
@@ -289,13 +313,19 @@ export default function EditReviewPage() {
       </section>
 
       <section className="card">
-        <h3>Vaksiner og notat</h3>
+        <h3>Vaksiner, dato og plan</h3>
         <div className="grid grid-2">
+          <label>Dato for utfylling av skjema
+            <input type="date" value={String(form.reviewDate ?? "")} onChange={(e) => setValue("reviewDate", e.target.value)} />
+          </label>
           <label>Influensa dato <input type="date" value={String(form.influenzaDate ?? "")} onChange={(e) => setValue("influenzaDate", e.target.value)} /></label>
           <label>Pneumokokk dato <input type="date" value={String(form.pneumococcalDate ?? "")} onChange={(e) => setValue("pneumococcalDate", e.target.value)} /></label>
           <label>Covid dato <input type="date" value={String(form.covidDate ?? "")} onChange={(e) => setValue("covidDate", e.target.value)} /></label>
           <label>RSV dato <input type="date" value={String(form.rsvDate ?? "")} onChange={(e) => setValue("rsvDate", e.target.value)} /></label>
         </div>
+        <label style={{ marginTop: 10 }}>Plan eller tiltak (til neste kontroll)
+          <textarea rows={4} style={{ width: "100%" }} value={String(form.planOrTiltak ?? "")} onChange={(e) => setValue("planOrTiltak", e.target.value)} />
+        </label>
         <label style={{ marginTop: 10 }}>Notat
           <textarea rows={4} style={{ width: "100%" }} value={String(form.notes ?? "")} onChange={(e) => setValue("notes", e.target.value)} />
         </label>

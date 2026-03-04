@@ -53,6 +53,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       weightKg: body.weightKg ?? null,
       bmi: body.bmi ?? null,
       chestXrayYear: body.chestXrayYear ?? null,
+      chestXrayMonth: body.chestXrayMonth ?? null,
+      spirometryDate: body.spirometryDate ? new Date(body.spirometryDate) : null,
       comorbCvd: !!body.comorbCvd,
       comorbKidneyDisease: !!body.comorbKidneyDisease,
       comorbDiabetesMetSyn: !!body.comorbDiabetesMetSyn,
@@ -69,6 +71,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       covidDate: body.covidDate ? new Date(body.covidDate) : null,
       rsvDate: body.rsvDate ? new Date(body.rsvDate) : null,
       notes: body.notes ?? null,
+      planOrTiltak: body.planOrTiltak ?? null,
       ...generated,
     },
   });

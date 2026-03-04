@@ -71,6 +71,8 @@ model AnnualReview {
   weightKg Float?
   bmi      Float?
   chestXrayYear Int?
+  chestXrayMonth Int?
+  spirometryDate DateTime?
 
   comorbCvd            Boolean @default(false)
   comorbKidneyDisease  Boolean @default(false)
@@ -98,6 +100,7 @@ model AnnualReview {
   treatmentStepSuggestion String?
 
   notes String?
+  planOrTiltak String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

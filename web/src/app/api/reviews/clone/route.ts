@@ -31,6 +31,8 @@ export async function POST(req: NextRequest) {
       weightKg: null,
       bmi: null,
       chestXrayYear: prev.chestXrayYear,
+      chestXrayMonth: prev.chestXrayMonth,
+      spirometryDate: prev.spirometryDate,
       comorbCvd: prev.comorbCvd,
       comorbKidneyDisease: prev.comorbKidneyDisease,
       comorbDiabetesMetSyn: prev.comorbDiabetesMetSyn,
@@ -47,6 +49,7 @@ export async function POST(req: NextRequest) {
       covidDate: prev.covidDate,
       rsvDate: prev.rsvDate,
       notes: prev.notes,
+      planOrTiltak: prev.planOrTiltak,
 
       // nullstilles alltid
       catScore: null,

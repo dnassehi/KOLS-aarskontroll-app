@@ -190,6 +190,11 @@ export default function EditReviewPage() {
     );
   }, [form.gliAge, form.heightCm, form.gliSex, form.gliEthnicity, form.postFev1L, form.postFvcL]);
 
+  const gliFlag = (z?: number | null) => {
+    if (z == null) return "";
+    return z < -1.645 ? "Under LLN" : "Innenfor normalområde";
+  };
+
   const autoBmi = useMemo(() => {
     const heightCm = parseNbNumber(form.heightCm);
     const weightKg = parseNbNumber(form.weightKg);
@@ -391,6 +396,7 @@ export default function EditReviewPage() {
               <option value="4">South East Asian</option>
               <option value="5">Other / mixed</option>
             </select>
+            <div className="muted" style={{ fontSize: 12 }}>Brukes kun til GLI-2012 beregning (%pred, z-score, LLN).</div>
           </label>
 
           <label>SpO2 <input value={String(form.spo2 ?? "")} onChange={(e) => setValue("spo2", e.target.value)} />{errors.spo2 && <div className="error">{errors.spo2}</div>}</label>
@@ -406,6 +412,9 @@ export default function EditReviewPage() {
             <div className="muted">FEV1 %pred: {gliPre ? formatNbDecimal(gliPre.fev1.percentPred, 1) : ""} · z: {gliPre ? formatNbDecimal(gliPre.fev1.zScore, 2) : ""}</div>
             <div className="muted">FVC %pred: {gliPre ? formatNbDecimal(gliPre.fvc.percentPred, 1) : ""} · z: {gliPre ? formatNbDecimal(gliPre.fvc.zScore, 2) : ""}</div>
             <div className="muted">FEV1/FVC z: {gliPre ? formatNbDecimal(gliPre.ratio.zScore, 2) : ""} · LLN: {gliPre ? formatNbDecimal(gliPre.ratio.lln * 100, 1) : ""}%</div>
+            <div style={{ marginTop: 6, fontWeight: 600, color: gliPre && gliPre.ratio.zScore < -1.645 ? "#b42318" : "#067647" }}>
+              {gliPre ? gliFlag(gliPre.ratio.zScore) : ""}
+            </div>
           </div>
 
           <div style={{ border: "1px solid var(--border)", borderRadius: 10, padding: 10 }}>
@@ -413,6 +422,9 @@ export default function EditReviewPage() {
             <div className="muted">FEV1 %pred: {gliPost ? formatNbDecimal(gliPost.fev1.percentPred, 1) : ""} · z: {gliPost ? formatNbDecimal(gliPost.fev1.zScore, 2) : ""}</div>
             <div className="muted">FVC %pred: {gliPost ? formatNbDecimal(gliPost.fvc.percentPred, 1) : ""} · z: {gliPost ? formatNbDecimal(gliPost.fvc.zScore, 2) : ""}</div>
             <div className="muted">FEV1/FVC z: {gliPost ? formatNbDecimal(gliPost.ratio.zScore, 2) : ""} · LLN: {gliPost ? formatNbDecimal(gliPost.ratio.lln * 100, 1) : ""}%</div>
+            <div style={{ marginTop: 6, fontWeight: 600, color: gliPost && gliPost.ratio.zScore < -1.645 ? "#b42318" : "#067647" }}>
+              {gliPost ? gliFlag(gliPost.ratio.zScore) : ""}
+            </div>
           </div>
         </div>
       </section>

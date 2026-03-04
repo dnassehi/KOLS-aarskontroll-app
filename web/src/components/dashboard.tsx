@@ -129,8 +129,8 @@ export default function Dashboard({ email }: { email: string }) {
           <ul className="list">
             {patient.reviews.map((r) => (
               <li key={r.id}>
-                {r.reviewYear} – <a href={`/reviews/${r.id}/edit`}>Rediger</a> | <a href={`/api/reviews/${r.id}/export/text`}>Tekst</a> |{" "}
-                <a href={`/api/reviews/${r.id}/export/pdf`} target="_blank">PDF</a>
+                {r.reviewYear} – <a href={`/reviews/${r.id}/edit`} target="_blank" rel="noopener noreferrer">Rediger</a> | <a href={`/api/reviews/${r.id}/export/text`} target="_blank" rel="noopener noreferrer">Tekst</a> |{" "}
+                <a href={`/api/reviews/${r.id}/export/pdf`} target="_blank" rel="noopener noreferrer">PDF</a>
               </li>
             ))}
           </ul>

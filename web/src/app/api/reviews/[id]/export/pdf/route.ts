@@ -37,6 +37,17 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     fev1PercentPred: review.fev1PercentPred,
     fvcL: review.fvcL,
     fev1Fvc: review.fev1Fvc,
+    responseTestSaba: review.responseTestSaba,
+    responseTestSama: review.responseTestSama,
+    postFev1L: review.postFev1L,
+    postFev1PercentPred: review.postFev1PercentPred,
+    postFvcL: review.postFvcL,
+    postFev1Fvc: review.postFev1Fvc,
+    gliAge: review.gliAge,
+    gliSex: review.gliSex,
+    gliEthnicity: review.gliEthnicity,
+    receivesPhysiotherapy: review.receivesPhysiotherapy,
+    lastRehabYear: review.lastRehabYear,
     smokingActive: review.smokingActive,
     heightCm: review.heightCm,
     weightKg: review.weightKg,
@@ -47,7 +58,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     reviewDate: review.reviewDate ? review.reviewDate.toISOString().slice(0, 10) : null,
     comorbidities,
     meds,
-    plan: review.planOrTiltak || review.treatmentStepSuggestion || review.notes,
+    treatmentSuggestion: review.treatmentStepSuggestion,
+    plan: review.planOrTiltak || review.notes,
   });
 
   const pdf = await PDFDocument.create();

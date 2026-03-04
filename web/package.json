@@ -11,6 +11,7 @@
   "dependencies": {
     "@prisma/client": "^6.7.0",
     "bcryptjs": "^3.0.3",
+    "gli-2012-data": "github:CPHCRD/gli-2012-data#v0.2.0",
     "jsonwebtoken": "^9.0.3",
     "next": "16.1.6",
     "pdf-lib": "^1.17.1",

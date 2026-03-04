@@ -14,6 +14,9 @@ importers:
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
+      gli-2012-data:
+        specifier: github:CPHCRD/gli-2012-data#v0.2.0
+        version: https://codeload.github.com/CPHCRD/gli-2012-data/tar.gz/0025950f86f57d6654684f63094bc55b0a2e3e16
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
@@ -1302,6 +1305,10 @@ packages:
 
   get-tsconfig@4.13.6:
     resolution: {integrity: sha512-shZT/QMiSHc/YBLxxOkMtgSid5HFoauqCE3/exfsEcwg1WkeqjG+V40yBbBrsD+jW2HDXcs28xOfcbm2jI8Ddw==}
+
+  gli-2012-data@https://codeload.github.com/CPHCRD/gli-2012-data/tar.gz/0025950f86f57d6654684f63094bc55b0a2e3e16:
+    resolution: {tarball: https://codeload.github.com/CPHCRD/gli-2012-data/tar.gz/0025950f86f57d6654684f63094bc55b0a2e3e16}
+    version: 0.2.0
 
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
@@ -3383,6 +3390,8 @@ snapshots:
   get-tsconfig@4.13.6:
     dependencies:
       resolve-pkg-maps: 1.0.0
+
+  gli-2012-data@https://codeload.github.com/CPHCRD/gli-2012-data/tar.gz/0025950f86f57d6654684f63094bc55b0a2e3e16: {}
 
   glob-parent@5.1.2:
     dependencies:

@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "AnnualReview"
+ADD COLUMN     "responseTestSaba" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "responseTestSama" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "postFev1L" DOUBLE PRECISION,
+ADD COLUMN     "postFev1PercentPred" DOUBLE PRECISION,
+ADD COLUMN     "postFvcL" DOUBLE PRECISION,
+ADD COLUMN     "postFev1Fvc" DOUBLE PRECISION;

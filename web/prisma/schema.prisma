@@ -68,6 +68,18 @@ model AnnualReview {
   fvcL             Float?
   fev1Fvc          Float?
 
+  responseTestSaba Boolean @default(false)
+  responseTestSama Boolean @default(false)
+
+  postFev1L           Float?
+  postFev1PercentPred Float?
+  postFvcL            Float?
+  postFev1Fvc         Float?
+
+  gliAge       Float?
+  gliSex       String?
+  gliEthnicity Int?
+
   spo2       Float?
   eosinophils Float?
 
@@ -87,6 +99,9 @@ model AnnualReview {
   comorbDiabetesMetSyn Boolean @default(false)
   comorbOsteoporosis   Boolean @default(false)
   comorbAnxietyDepression Boolean @default(false)
+
+  receivesPhysiotherapy Boolean @default(false)
+  lastRehabYear Int?
 
   // medikamentklasser
   medLaba Boolean @default(false)

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import { calculateGli } from "@/lib/gli";
 
 type FormState = Record<string, string | number | boolean | null | undefined>;
 
@@ -62,6 +63,15 @@ export default function EditReviewPage() {
         fev1PercentPred: toNbString(j.fev1PercentPred),
         fvcL: toNbString(j.fvcL),
         fev1Fvc: toNbString(j.fev1Fvc),
+        responseTestSaba: !!j.responseTestSaba,
+        responseTestSama: !!j.responseTestSama,
+        postFev1L: toNbString(j.postFev1L),
+        postFev1PercentPred: toNbString(j.postFev1PercentPred),
+        postFvcL: toNbString(j.postFvcL),
+        postFev1Fvc: toNbString(j.postFev1Fvc),
+        gliAge: toNbString(j.gliAge),
+        gliSex: j.gliSex ?? "",
+        gliEthnicity: j.gliEthnicity ?? "1",
         spo2: toNbString(j.spo2),
         eosinophils: toNbString(j.eosinophils),
         smokeStatus: j.smokeStatus ?? "",
@@ -78,6 +88,8 @@ export default function EditReviewPage() {
         comorbDiabetesMetSyn: !!j.comorbDiabetesMetSyn,
         comorbOsteoporosis: !!j.comorbOsteoporosis,
         comorbAnxietyDepression: !!j.comorbAnxietyDepression,
+        receivesPhysiotherapy: !!j.receivesPhysiotherapy,
+        lastRehabYear: j.lastRehabYear ?? "",
         medLaba: !!j.medLaba,
         medLama: !!j.medLama,
         medIcs: !!j.medIcs,
@@ -89,6 +101,7 @@ export default function EditReviewPage() {
         covidDate: j.covidDate ? String(j.covidDate).slice(0, 10) : "",
         rsvDate: j.rsvDate ? String(j.rsvDate).slice(0, 10) : "",
         notes: j.notes ?? "",
+        treatmentStepSuggestion: j.treatmentStepSuggestion ?? "",
         planOrTiltak: j.planOrTiltak ?? "",
       });
       setLoading(false);
@@ -134,8 +147,48 @@ export default function EditReviewPage() {
     const fev1 = parseNbNumber(form.fev1L);
     const fvc = parseNbNumber(form.fvcL);
     if (fev1 == null || fvc == null || fvc === 0) return null;
-    return fev1 / fvc;
+    return (fev1 / fvc) * 100;
   }, [form.fev1L, form.fvcL]);
+
+  const autoPostFev1Fvc = useMemo(() => {
+    const fev1 = parseNbNumber(form.postFev1L);
+    const fvc = parseNbNumber(form.postFvcL);
+    if (fev1 == null || fvc == null || fvc === 0) return null;
+    return (fev1 / fvc) * 100;
+  }, [form.postFev1L, form.postFvcL]);
+
+  const reversibility = useMemo(() => {
+    const pre = parseNbNumber(form.fev1L);
+    const post = parseNbNumber(form.postFev1L);
+    if (pre == null || post == null || pre <= 0) return { ml: null as number | null, pct: null as number | null };
+    const deltaL = post - pre;
+    return {
+      ml: deltaL * 1000,
+      pct: (deltaL / pre) * 100,
+    };
+  }, [form.fev1L, form.postFev1L]);
+
+  const gliPre = useMemo(() => {
+    return calculateGli(
+      parseNbNumber(form.gliAge),
+      parseNbNumber(form.heightCm),
+      (form.gliSex as string) || null,
+      parseNbNumber(form.gliEthnicity),
+      parseNbNumber(form.fev1L),
+      parseNbNumber(form.fvcL),
+    );
+  }, [form.gliAge, form.heightCm, form.gliSex, form.gliEthnicity, form.fev1L, form.fvcL]);
+
+  const gliPost = useMemo(() => {
+    return calculateGli(
+      parseNbNumber(form.gliAge),
+      parseNbNumber(form.heightCm),
+      (form.gliSex as string) || null,
+      parseNbNumber(form.gliEthnicity),
+      parseNbNumber(form.postFev1L),
+      parseNbNumber(form.postFvcL),
+    );
+  }, [form.gliAge, form.heightCm, form.gliSex, form.gliEthnicity, form.postFev1L, form.postFvcL]);
 
   const autoBmi = useMemo(() => {
     const heightCm = parseNbNumber(form.heightCm);
@@ -155,6 +208,9 @@ export default function EditReviewPage() {
     if (!isValidNbNumberInput(form.fev1L)) e.fev1L = "Ugyldig tall. Bruk f.eks. 1,5";
     if (!isValidNbNumberInput(form.fvcL)) e.fvcL = "Ugyldig tall. Bruk f.eks. 3,1";
     if (!isValidNbNumberInput(form.fev1PercentPred)) e.fev1PercentPred = "Ugyldig tall. Bruk f.eks. 52,3";
+    if (!isValidNbNumberInput(form.postFev1L)) e.postFev1L = "Ugyldig tall. Bruk f.eks. 1,8";
+    if (!isValidNbNumberInput(form.postFvcL)) e.postFvcL = "Ugyldig tall. Bruk f.eks. 3,3";
+    if (!isValidNbNumberInput(form.postFev1PercentPred)) e.postFev1PercentPred = "Ugyldig tall. Bruk f.eks. 57,0";
     if (!isValidNbNumberInput(form.spo2)) e.spo2 = "Ugyldig tall. Bruk heltall eller komma";
     if (!isValidNbNumberInput(form.eosinophils)) e.eosinophils = "Ugyldig tall. Bruk heltall eller komma";
     if (!isValidNbNumberInput(form.heightCm)) e.heightCm = "Ugyldig tall. Bruk f.eks. 172";
@@ -170,7 +226,10 @@ export default function EditReviewPage() {
     if (spo2 != null && (spo2 < 50 || spo2 > 100)) e.spo2 = "SpO2 må være mellom 50 og 100";
 
     const fev1fvc = autoFev1Fvc;
-    if (fev1fvc != null && (fev1fvc <= 0 || fev1fvc > 2)) e.fev1Fvc = "FEV1/FVC ser ugyldig ut";
+    if (fev1fvc != null && (fev1fvc <= 0 || fev1fvc > 120)) e.fev1Fvc = "FEV1/FVC (%) ser ugyldig ut";
+
+    const postFev1Fvc = autoPostFev1Fvc;
+    if (postFev1Fvc != null && (postFev1Fvc <= 0 || postFev1Fvc > 120)) e.postFev1Fvc = "Post-test FEV1/FVC (%) ser ugyldig ut";
 
     const heightCm = parseNbNumber(form.heightCm);
     if (heightCm != null && (heightCm < 100 || heightCm > 250)) e.heightCm = "Høyde må være mellom 100 og 250 cm";
@@ -187,6 +246,11 @@ export default function EditReviewPage() {
     const chestXrayMonth = parseNbNumber(form.chestXrayMonth);
     if (chestXrayMonth != null && (!Number.isInteger(chestXrayMonth) || chestXrayMonth < 1 || chestXrayMonth > 12)) {
       e.chestXrayMonth = "Måned må være heltall fra 1 til 12";
+    }
+
+    const lastRehabYear = parseNbNumber(form.lastRehabYear);
+    if (lastRehabYear != null && (!Number.isInteger(lastRehabYear) || lastRehabYear < 1950 || lastRehabYear > nowYear)) {
+      e.lastRehabYear = `Årstall må være et heltall mellom 1950 og ${nowYear}`;
     }
 
     setErrors(e);
@@ -212,6 +276,15 @@ export default function EditReviewPage() {
       fev1PercentPred: parseNbNumber(form.fev1PercentPred),
       fvcL: parseNbNumber(form.fvcL),
       fev1Fvc: autoFev1Fvc ?? parseNbNumber(form.fev1Fvc),
+      responseTestSaba: !!form.responseTestSaba,
+      responseTestSama: !!form.responseTestSama,
+      postFev1L: parseNbNumber(form.postFev1L),
+      postFev1PercentPred: parseNbNumber(form.postFev1PercentPred),
+      postFvcL: parseNbNumber(form.postFvcL),
+      postFev1Fvc: autoPostFev1Fvc ?? parseNbNumber(form.postFev1Fvc),
+      gliAge: parseNbNumber(form.gliAge),
+      gliSex: form.gliSex || null,
+      gliEthnicity: parseNbNumber(form.gliEthnicity),
       spo2: parseNbNumber(form.spo2),
       eosinophils: parseNbNumber(form.eosinophils),
       packYears: parseNbNumber(form.packYears),
@@ -221,6 +294,8 @@ export default function EditReviewPage() {
       bmi: autoBmi == null ? null : Number(autoBmi.toFixed(2)),
       chestXrayYear: parseNbNumber(form.chestXrayYear),
       chestXrayMonth: parseNbNumber(form.chestXrayMonth),
+      receivesPhysiotherapy: !!form.receivesPhysiotherapy,
+      lastRehabYear: parseNbNumber(form.lastRehabYear),
       spirometryDate: form.spirometryDate || null,
       reviewDate: form.reviewDate || null,
       planOrTiltak: form.planOrTiltak || null,
@@ -278,15 +353,67 @@ export default function EditReviewPage() {
         <h3>Spirometri</h3>
         <p className="muted">Bruk norske desimaler (komma), f.eks. 3,1</p>
         <div className="grid grid-2">
-          <label>FEV1 (L/s) <input value={String(form.fev1L ?? "")} onChange={(e) => setValue("fev1L", e.target.value)} />{errors.fev1L && <div className="error">{errors.fev1L}</div>}</label>
-          <label>FEV1 % pred <input value={String(form.fev1PercentPred ?? "")} onChange={(e) => setValue("fev1PercentPred", e.target.value)} />{errors.fev1PercentPred && <div className="error">{errors.fev1PercentPred}</div>}</label>
-          <label>FVC (L) <input value={String(form.fvcL ?? "")} onChange={(e) => setValue("fvcL", e.target.value)} />{errors.fvcL && <div className="error">{errors.fvcL}</div>}</label>
-          <label>FEV1/FVC (auto) <input value={autoFev1Fvc == null ? "" : formatNbDecimal(autoFev1Fvc)} readOnly />{errors.fev1Fvc && <div className="error">{errors.fev1Fvc}</div>}</label>
+          <label>Pre-test FEV1 (L/s) <input value={String(form.fev1L ?? "")} onChange={(e) => setValue("fev1L", e.target.value)} />{errors.fev1L && <div className="error">{errors.fev1L}</div>}</label>
+          <label>Pre-test FEV1 % pred <input value={String(form.fev1PercentPred ?? "")} onChange={(e) => setValue("fev1PercentPred", e.target.value)} />{errors.fev1PercentPred && <div className="error">{errors.fev1PercentPred}</div>}</label>
+          <label>Pre-test FVC (L) <input value={String(form.fvcL ?? "")} onChange={(e) => setValue("fvcL", e.target.value)} />{errors.fvcL && <div className="error">{errors.fvcL}</div>}</label>
+          <label>Pre-test FEV1/FVC (%) (auto) <input value={autoFev1Fvc == null ? "" : formatNbDecimal(autoFev1Fvc, 1)} readOnly />{errors.fev1Fvc && <div className="error">{errors.fev1Fvc}</div>}</label>
+
+          <label><input type="checkbox" checked={Boolean(form.responseTestSaba)} onChange={(e) => setValue("responseTestSaba", e.target.checked)} /> Responstest gitt med SABA</label>
+          <label><input type="checkbox" checked={Boolean(form.responseTestSama)} onChange={(e) => setValue("responseTestSama", e.target.checked)} /> Responstest gitt med SAMA</label>
+
+          <label>Post-test FEV1 (L/s) <input value={String(form.postFev1L ?? "")} onChange={(e) => setValue("postFev1L", e.target.value)} />{errors.postFev1L && <div className="error">{errors.postFev1L}</div>}</label>
+          <label>Post-test FEV1 % pred <input value={String(form.postFev1PercentPred ?? "")} onChange={(e) => setValue("postFev1PercentPred", e.target.value)} />{errors.postFev1PercentPred && <div className="error">{errors.postFev1PercentPred}</div>}</label>
+          <label>Post-test FVC (L) <input value={String(form.postFvcL ?? "")} onChange={(e) => setValue("postFvcL", e.target.value)} />{errors.postFvcL && <div className="error">{errors.postFvcL}</div>}</label>
+          <label>Post-test FEV1/FVC (%) (auto) <input value={autoPostFev1Fvc == null ? "" : formatNbDecimal(autoPostFev1Fvc, 1)} readOnly />{errors.postFev1Fvc && <div className="error">{errors.postFev1Fvc}</div>}</label>
+
+          <label>Reversibilitet FEV1 (ml)
+            <input value={reversibility.ml == null ? "" : formatNbDecimal(reversibility.ml, 0)} readOnly />
+          </label>
+          <label>Reversibilitet FEV1 (%)
+            <input value={reversibility.pct == null ? "" : formatNbDecimal(reversibility.pct, 1)} readOnly />
+          </label>
+
+          <label>GLI alder (år)
+            <input value={String(form.gliAge ?? "")} onChange={(e) => setValue("gliAge", e.target.value)} />
+          </label>
+          <label>GLI kjønn
+            <select value={String(form.gliSex ?? "")} onChange={(e) => setValue("gliSex", e.target.value)}>
+              <option value="">Velg</option>
+              <option value="M">Mann</option>
+              <option value="F">Kvinne</option>
+            </select>
+          </label>
+          <label>GLI etnisitet
+            <select value={String(form.gliEthnicity ?? "1")} onChange={(e) => setValue("gliEthnicity", e.target.value)}>
+              <option value="1">Caucasian</option>
+              <option value="2">African-American</option>
+              <option value="3">North East Asian</option>
+              <option value="4">South East Asian</option>
+              <option value="5">Other / mixed</option>
+            </select>
+          </label>
+
           <label>SpO2 <input value={String(form.spo2 ?? "")} onChange={(e) => setValue("spo2", e.target.value)} />{errors.spo2 && <div className="error">{errors.spo2}</div>}</label>
           <label>Eosinofile <input value={String(form.eosinophils ?? "")} onChange={(e) => setValue("eosinophils", e.target.value)} />{errors.eosinophils && <div className="error">{errors.eosinophils}</div>}</label>
           <label>Dato for spirometri
             <input type="date" value={String(form.spirometryDate ?? "")} onChange={(e) => setValue("spirometryDate", e.target.value)} />
           </label>
+        </div>
+
+        <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div style={{ border: "1px solid var(--border)", borderRadius: 10, padding: 10 }}>
+            <div style={{ fontWeight: 600, marginBottom: 6 }}>GLI-2012 (Pre-test)</div>
+            <div className="muted">FEV1 %pred: {gliPre ? formatNbDecimal(gliPre.fev1.percentPred, 1) : ""} · z: {gliPre ? formatNbDecimal(gliPre.fev1.zScore, 2) : ""}</div>
+            <div className="muted">FVC %pred: {gliPre ? formatNbDecimal(gliPre.fvc.percentPred, 1) : ""} · z: {gliPre ? formatNbDecimal(gliPre.fvc.zScore, 2) : ""}</div>
+            <div className="muted">FEV1/FVC z: {gliPre ? formatNbDecimal(gliPre.ratio.zScore, 2) : ""} · LLN: {gliPre ? formatNbDecimal(gliPre.ratio.lln * 100, 1) : ""}%</div>
+          </div>
+
+          <div style={{ border: "1px solid var(--border)", borderRadius: 10, padding: 10 }}>
+            <div style={{ fontWeight: 600, marginBottom: 6 }}>GLI-2012 (Post-test)</div>
+            <div className="muted">FEV1 %pred: {gliPost ? formatNbDecimal(gliPost.fev1.percentPred, 1) : ""} · z: {gliPost ? formatNbDecimal(gliPost.fev1.zScore, 2) : ""}</div>
+            <div className="muted">FVC %pred: {gliPost ? formatNbDecimal(gliPost.fvc.percentPred, 1) : ""} · z: {gliPost ? formatNbDecimal(gliPost.fvc.zScore, 2) : ""}</div>
+            <div className="muted">FEV1/FVC z: {gliPost ? formatNbDecimal(gliPost.ratio.zScore, 2) : ""} · LLN: {gliPost ? formatNbDecimal(gliPost.ratio.lln * 100, 1) : ""}%</div>
+          </div>
         </div>
       </section>
 
@@ -320,6 +447,12 @@ export default function EditReviewPage() {
 
           <label>BMI (auto)
             <input value={autoBmi == null ? "" : formatNbDecimal(autoBmi, 2)} readOnly />
+          </label>
+
+          <label><input type="checkbox" checked={Boolean(form.receivesPhysiotherapy)} onChange={(e) => setValue("receivesPhysiotherapy", e.target.checked)} /> Får fysioterapi</label>
+          <label>Siste rehabiliteringsopphold (år)
+            <input value={String(form.lastRehabYear ?? "")} onChange={(e) => setValue("lastRehabYear", e.target.value)} />
+            {errors.lastRehabYear && <div className="error">{errors.lastRehabYear}</div>}
           </label>
         </div>
 
@@ -359,6 +492,9 @@ export default function EditReviewPage() {
           <label>Covid dato <input type="date" value={String(form.covidDate ?? "")} onChange={(e) => setValue("covidDate", e.target.value)} /></label>
           <label>RSV dato <input type="date" value={String(form.rsvDate ?? "")} onChange={(e) => setValue("rsvDate", e.target.value)} /></label>
         </div>
+        <label style={{ marginTop: 10 }}>Forslag til videre behandling (automatisk fra KOLS-veileder)
+          <textarea rows={4} style={{ width: "100%" }} value={String(form.treatmentStepSuggestion ?? "")} readOnly />
+        </label>
         <label style={{ marginTop: 10 }}>Plan eller tiltak (til neste kontroll)
           <textarea rows={4} style={{ width: "100%" }} value={String(form.planOrTiltak ?? "")} onChange={(e) => setValue("planOrTiltak", e.target.value)} />
         </label>

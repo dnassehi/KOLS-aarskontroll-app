@@ -6,6 +6,10 @@ export type KolsInput = {
   fev1PercentPred?: number | null;
   eosinophils?: number | null;
   spo2?: number | null;
+  smokingActive?: boolean | null;
+  bmi?: number | null;
+  receivesPhysiotherapy?: boolean | null;
+  lastRehabYear?: number | null;
 
   medLaba?: boolean;
   medLama?: boolean;
@@ -82,6 +86,24 @@ export function treatmentStep(i: KolsInput) {
     medAdvice.push("Vurder tillegg av ICS (høy risiko/eosinofile)");
   }
 
+  const lifestyleAdvice: string[] = [];
+  if (i.smokingActive === true) {
+    lifestyleAdvice.push("Anbefal strukturert røykesluttintervensjon (kort rådgivning + legemiddelstøtte/Nikotin) og tett oppfølging");
+  }
+  if ((i.bmi ?? 99) < 22) {
+    lifestyleAdvice.push("Vurder ernæringskartlegging og ernæringstiltak ved lav BMI");
+  }
+
+  const physioRehabAdvice: string[] = [];
+  if (highSymptoms && !i.receivesPhysiotherapy) {
+    physioRehabAdvice.push("Vurder henvisning til fysioterapi/pulmonal opptrening");
+  }
+  const nowYear = new Date().getFullYear();
+  const rehabOld = !i.lastRehabYear || (nowYear - i.lastRehabYear >= 2);
+  if ((highSymptoms || highRisk) && rehabOld) {
+    physioRehabAdvice.push("Vurder henvisning til rehabiliteringsopphold (ingen/svært gammelt opphold registrert)");
+  }
+
   const vaccineAdvice: string[] = [];
   if (!dateWithinMonths(i.influenzaDate, 12)) vaccineAdvice.push("Influensavaksine (årlig)");
   if (!hasDate(i.pneumococcalDate)) vaccineAdvice.push("Pneumokokkvaksine");
@@ -98,9 +120,11 @@ export function treatmentStep(i: KolsInput) {
 
   const gaps: string[] = [];
   if (medAdvice.length) gaps.push(`Medikasjon: ${medAdvice.join("; ")}`);
+  if (lifestyleAdvice.length) gaps.push(`Livsstil/egenbehandling: ${lifestyleAdvice.join("; ")}`);
+  if (physioRehabAdvice.length) gaps.push(`Fysioterapi/rehabilitering: ${physioRehabAdvice.join("; ")}`);
   if (vaccineAdvice.length) gaps.push(`Vaksiner: ${vaccineAdvice.join("; ")}`);
 
-  return gaps.length ? `${baseStep}. Forslag basert på registrerte aktive tiltak -> ${gaps.join(" | ")}.` : `${baseStep}. Registrerte aktive medisiner/vaksiner er i tråd med hovedforslag.`;
+  return gaps.length ? `${baseStep}. Forslag basert på registrerte aktive tiltak -> ${gaps.join(" | ")}.` : `${baseStep}. Registrerte aktive tiltak er i tråd med hovedforslag.`;
 }
 
 export function compactJournalNote(data: {
@@ -113,6 +137,17 @@ export function compactJournalNote(data: {
   fev1PercentPred?: number | null;
   fvcL?: number | null;
   fev1Fvc?: number | null;
+  responseTestSaba?: boolean | null;
+  responseTestSama?: boolean | null;
+  postFev1L?: number | null;
+  postFev1PercentPred?: number | null;
+  postFvcL?: number | null;
+  postFev1Fvc?: number | null;
+  gliAge?: number | null;
+  gliSex?: string | null;
+  gliEthnicity?: number | null;
+  receivesPhysiotherapy?: boolean | null;
+  lastRehabYear?: number | null;
   smokingActive?: boolean | null;
   heightCm?: number | null;
   weightKg?: number | null;
@@ -123,6 +158,7 @@ export function compactJournalNote(data: {
   reviewDate?: string | null;
   comorbidities?: string[];
   meds: string[];
+  treatmentSuggestion?: string | null;
   plan?: string | null;
 }) {
   const bmiCategory = data.bmi == null
@@ -152,19 +188,30 @@ export function compactJournalNote(data: {
     "Spirometri og målinger",
     `- Dato for utfylling: ${data.reviewDate ?? "ikke registrert"}`,
     `- Dato for spirometri: ${data.spirometryDate ?? "ikke registrert"}`,
-    `- FEV1: ${data.fev1L ?? "mangler"} L/s`,
-    `- FEV1 % pred: ${data.fev1PercentPred ?? "mangler"}`,
-    `- FVC: ${data.fvcL ?? "mangler"} L`,
-    `- FEV1/FVC: ${data.fev1Fvc ?? "mangler"}`,
+    `- Pre-test FEV1: ${data.fev1L ?? "mangler"} L/s`,
+    `- Pre-test FEV1 % pred: ${data.fev1PercentPred ?? "mangler"}`,
+    `- Pre-test FVC: ${data.fvcL ?? "mangler"} L`,
+    `- Pre-test FEV1/FVC: ${data.fev1Fvc ?? "mangler"} %`,
+    `- Responstest med: ${(data.responseTestSaba ? "SABA" : "")}${data.responseTestSaba && data.responseTestSama ? " + " : ""}${(data.responseTestSama ? "SAMA" : "") || "ikke registrert"}`,
+    `- Post-test FEV1: ${data.postFev1L ?? "mangler"} L/s`,
+    `- Post-test FEV1 % pred: ${data.postFev1PercentPred ?? "mangler"}`,
+    `- Post-test FVC: ${data.postFvcL ?? "mangler"} L`,
+    `- Post-test FEV1/FVC: ${data.postFev1Fvc ?? "mangler"} %`,
+    `- GLI grunnlag: alder ${data.gliAge ?? "mangler"}, kjønn ${data.gliSex ?? "mangler"}, etnisitet-kode ${data.gliEthnicity ?? "mangler"}`,
     `- Røyker nå: ${data.smokingActive == null ? "ikke registrert" : data.smokingActive ? "Ja" : "Nei"}`,
     `- Høyde/vekt/BMI: ${data.heightCm ?? "mangler"} cm / ${data.weightKg ?? "mangler"} kg / ${data.bmi == null ? "mangler" : data.bmi.toFixed(2)} (${bmiCategory})`,
     `- Røntgen thorax sist tatt: ${data.chestXrayMonth && data.chestXrayYear ? `${String(data.chestXrayMonth).padStart(2, "0")}/${data.chestXrayYear}` : (data.chestXrayYear ?? "ikke registrert")}`,
     "",
     "Komorbiditet og behandling",
     `- Komorbiditeter: ${data.comorbidities && data.comorbidities.length ? data.comorbidities.join(", ") : "ingen registrert"}`,
+    `- Fysioterapi: ${data.receivesPhysiotherapy ? "Ja" : "Nei"}`,
+    `- Siste rehabiliteringsopphold (år): ${data.lastRehabYear ?? "ikke registrert"}`,
     `- Medikamenter: ${data.meds.length ? data.meds.join(", ") : "ingen registrert"}`,
     "",
-    "Plan",
+    "Forslag til videre behandling (automatisk)",
+    `- ${data.treatmentSuggestion || "Ikke tilgjengelig"}`,
+    "",
+    "Plan / tiltak (manuelt)",
     `- ${data.plan || "Revurdering ved neste kontroll."}`,
   ].join("\n");
 }

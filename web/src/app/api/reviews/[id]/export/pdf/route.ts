@@ -3,6 +3,7 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/api-auth";
 import { compactJournalNote } from "@/lib/kols";
+import { calculateGli } from "@/lib/gli";
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireUser();
@@ -27,6 +28,25 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   if (review.comorbOsteoporosis) comorbidities.push("Osteoporose");
   if (review.comorbAnxietyDepression) comorbidities.push("Angst/depresjon");
 
+  const gliPre = calculateGli(
+    review.gliAge,
+    review.heightCm,
+    review.gliSex,
+    review.gliEthnicity,
+    review.fev1L,
+    review.fvcL,
+  );
+  const gliPost = calculateGli(
+    review.gliAge,
+    review.heightCm,
+    review.gliSex,
+    review.gliEthnicity,
+    review.postFev1L,
+    review.postFvcL,
+  );
+  const gliPreStatus = gliPre ? (gliPre.ratio.zScore < -1.645 ? "Under LLN" : "Innenfor normalområde") : null;
+  const gliPostStatus = gliPost ? (gliPost.ratio.zScore < -1.645 ? "Under LLN" : "Innenfor normalområde") : null;
+
   const text = compactJournalNote({
     year: review.reviewYear,
     catScore: review.catScore,
@@ -48,6 +68,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     gliEthnicity: review.gliEthnicity,
     receivesPhysiotherapy: review.receivesPhysiotherapy,
     lastRehabYear: review.lastRehabYear,
+    gliPreStatus,
+    gliPostStatus,
     smokingActive: review.smokingActive,
     heightCm: review.heightCm,
     weightKg: review.weightKg,

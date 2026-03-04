@@ -32,9 +32,12 @@ export function verifySession(token: string): { sub: string; email: string } | n
 
 export async function setSessionCookie(token: string) {
   const store = await cookies();
+  const appUrl = process.env.APP_URL || "";
+  const isHttpsDeployment = appUrl.startsWith("https://");
+
   store.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isHttpsDeployment,
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,

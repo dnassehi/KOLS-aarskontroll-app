@@ -148,6 +148,8 @@ export function compactJournalNote(data: {
   gliEthnicity?: number | null;
   receivesPhysiotherapy?: boolean | null;
   lastRehabYear?: number | null;
+  gliPreStatus?: string | null;
+  gliPostStatus?: string | null;
   smokingActive?: boolean | null;
   heightCm?: number | null;
   weightKg?: number | null;
@@ -198,6 +200,8 @@ export function compactJournalNote(data: {
     `- Post-test FVC: ${data.postFvcL ?? "mangler"} L`,
     `- Post-test FEV1/FVC: ${data.postFev1Fvc ?? "mangler"} %`,
     `- GLI grunnlag: alder ${data.gliAge ?? "mangler"}, kjønn ${data.gliSex ?? "mangler"}, etnisitet-kode ${data.gliEthnicity ?? "mangler"}`,
+    `- GLI vurdering pre-test: ${data.gliPreStatus ?? "ikke beregnet"}`,
+    `- GLI vurdering post-test: ${data.gliPostStatus ?? "ikke beregnet"}`,
     `- Røyker nå: ${data.smokingActive == null ? "ikke registrert" : data.smokingActive ? "Ja" : "Nei"}`,
     `- Høyde/vekt/BMI: ${data.heightCm ?? "mangler"} cm / ${data.weightKg ?? "mangler"} kg / ${data.bmi == null ? "mangler" : data.bmi.toFixed(2)} (${bmiCategory})`,
     `- Røntgen thorax sist tatt: ${data.chestXrayMonth && data.chestXrayYear ? `${String(data.chestXrayMonth).padStart(2, "0")}/${data.chestXrayYear}` : (data.chestXrayYear ?? "ikke registrert")}`,

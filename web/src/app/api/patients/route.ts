@@ -26,10 +26,27 @@ export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("patientCode");
   if (!code) return NextResponse.json({ error: "Mangler patientCode" }, { status: 400 });
 
-  const patient = await prisma.patient.findFirst({
+  // 1) Exact match first
+  let patient = await prisma.patient.findFirst({
     where: { ownerId: auth.userId, patientCode: code },
     include: { reviews: { orderBy: { reviewYear: "desc" } } },
   });
+
+  // 2) Fallback: partial match on patientCode or name
+  if (!patient) {
+    patient = await prisma.patient.findFirst({
+      where: {
+        ownerId: auth.userId,
+        OR: [
+          { patientCode: { contains: code, mode: "insensitive" } },
+          { name: { contains: code, mode: "insensitive" } },
+        ],
+      },
+      include: { reviews: { orderBy: { reviewYear: "desc" } } },
+      orderBy: { patientCode: "asc" },
+    });
+  }
+
   if (!patient) return NextResponse.json({ error: "Ikke funnet" }, { status: 404 });
 
   return NextResponse.json(patient);

@@ -9,10 +9,18 @@ type Patient = {
   reviews: Array<{ id: string; reviewYear: number }>;
 };
 
+type Match = {
+  id: string;
+  patientCode: string;
+  name?: string | null;
+  reviewCount: number;
+};
+
 export default function Dashboard({ email }: { email: string }) {
   const [patientCode, setPatientCode] = useState("");
   const [name, setName] = useState("");
   const [patient, setPatient] = useState<Patient | null>(null);
+  const [matches, setMatches] = useState<Match[]>([]);
   const [year, setYear] = useState(new Date().getFullYear());
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -36,14 +44,25 @@ export default function Dashboard({ email }: { email: string }) {
 
   async function lookup(codeArg?: string) {
     setMsg(null);
-    const code = codeArg ?? patientCode;
+    setMatches([]);
+    const code = (codeArg ?? patientCode).trim();
     const r = await fetch(`/api/patients?patientCode=${encodeURIComponent(code)}`);
-    if (!r.ok) {
-      setPatient(null);
-      setMsg("Pasient ikke funnet");
+    if (r.ok) {
+      setPatient(await r.json());
       return;
     }
-    setPatient(await r.json());
+
+    setPatient(null);
+    const rs = await fetch(`/api/patients/search?q=${encodeURIComponent(code)}`);
+    if (rs.ok) {
+      const j = await rs.json();
+      const m: Match[] = j.matches || [];
+      setMatches(m);
+      setMsg(m.length ? "Fant flere mulige treff" : "Pasient ikke funnet");
+      return;
+    }
+
+    setMsg("Pasient ikke funnet");
   }
 
   async function createPatient() {
@@ -112,6 +131,28 @@ export default function Dashboard({ email }: { email: string }) {
           <button onClick={createPatient} className="button-primary">Opprett</button>
         </div>
       </section>
+
+      {matches.length > 0 && !patient && (
+        <section className="card">
+          <h3>Treffliste</h3>
+          <ul className="list">
+            {matches.map((m) => (
+              <li key={m.id}>
+                <button
+                  className="button-ghost button-inline"
+                  onClick={() => {
+                    setPatientCode(m.patientCode);
+                    void lookup(m.patientCode);
+                  }}
+                >
+                  Velg
+                </button>{" "}
+                {m.patientCode}{m.name ? ` – ${m.name}` : ""} (årskontroller: {m.reviewCount})
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {patient && (
         <section className="card">

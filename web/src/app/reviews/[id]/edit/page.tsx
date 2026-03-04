@@ -95,6 +95,37 @@ export default function EditReviewPage() {
     })();
   }, [id]);
 
+  useEffect(() => {
+    const key = `catSaved-${id}`;
+
+    const maybeRefresh = () => {
+      try {
+        const v = localStorage.getItem(key);
+        if (v) {
+          localStorage.removeItem(key);
+          window.location.reload();
+        }
+      } catch {}
+    };
+
+    const onMessage = (ev: MessageEvent) => {
+      if (ev.origin !== window.location.origin) return;
+      if (ev.data?.type === "cat-saved" && ev.data?.reviewId === id) {
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener("focus", maybeRefresh);
+    document.addEventListener("visibilitychange", maybeRefresh);
+    window.addEventListener("message", onMessage);
+
+    return () => {
+      window.removeEventListener("focus", maybeRefresh);
+      document.removeEventListener("visibilitychange", maybeRefresh);
+      window.removeEventListener("message", onMessage);
+    };
+  }, [id]);
+
   function setValue(name: string, value: string | number | boolean) {
     setForm((f) => ({ ...f, [name]: value }));
   }
@@ -226,6 +257,11 @@ export default function EditReviewPage() {
         <h3>Symptomer og forverring</h3>
         <div className="grid grid-2">
           <label>CAT <input value={String(form.catScore ?? "")} onChange={(e) => setValue("catScore", e.target.value)} />{errors.catScore && <div className="error">{errors.catScore}</div>}</label>
+          <div style={{ display: "flex", alignItems: "end" }}>
+            <a href={`/reviews/${id}/cat`} target="_blank" className="button-ghost" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border)", width: "fit-content" }}>
+              Fyll ut CAT (åpnes i ny fane)
+            </a>
+          </div>
           <label>mMRC
             <select value={String(form.mmrc ?? "")} onChange={(e) => setValue("mmrc", e.target.value)}>
               <option value="">Velg grad</option>

@@ -53,6 +53,14 @@ export async function POST(req: NextRequest) {
 
       // nullstilles alltid
       catScore: null,
+      catQ1: null,
+      catQ2: null,
+      catQ3: null,
+      catQ4: null,
+      catQ5: null,
+      catQ6: null,
+      catQ7: null,
+      catQ8: null,
       mmrc: null,
       exacerbationsLast12m: null,
       hospitalizationsLast12m: null,

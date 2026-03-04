@@ -50,6 +50,14 @@ model AnnualReview {
 
   // kliniske felt
   catScore Int?
+  catQ1    Int?
+  catQ2    Int?
+  catQ3    Int?
+  catQ4    Int?
+  catQ5    Int?
+  catQ6    Int?
+  catQ7    Int?
+  catQ8    Int?
   mmrc     Int?
 
   exacerbationsLast12m Int?

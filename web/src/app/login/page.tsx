@@ -37,11 +37,11 @@ export default function LoginPage() {
         <form onSubmit={submit} className="grid" style={{ marginTop: 12 }}>
           <label>
             E-post
-            <input placeholder="navn@epost.no" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input placeholder="navn@epost.no" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </label>
           <label>
             Passord
-            <input placeholder="••••••••" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input placeholder="••••••••" type="password" autoComplete={registerMode ? "new-password" : "current-password"} value={password} onChange={(e) => setPassword(e.target.value)} required />
           </label>
           <button type="submit" className="button-primary">{registerMode ? "Opprett" : "Logg inn"}</button>
         </form>

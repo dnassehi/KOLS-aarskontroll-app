@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/api-auth";
 import { obstructionGrade, riskLevel, symptomBurden, treatmentStep } from "@/lib/kols";
+import { logApi } from "@/lib/api-log";
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireUser();
@@ -14,14 +15,19 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const startedAt = Date.now();
   const auth = await requireUser();
-  if ("error" in auth) return auth.error;
+  if ("error" in auth) {
+    logApi(req, "/api/reviews/[id]", 401, startedAt);
+    return auth.error;
+  }
 
   const { id } = await params;
   const body = await req.json();
 
   const existing = await prisma.annualReview.findUnique({ where: { id }, include: { patient: true } });
   if (!existing || existing.patient.ownerId !== auth.userId) {
+    logApi(req, "/api/reviews/[id]", 404, startedAt);
     return NextResponse.json({ error: "Ikke funnet" }, { status: 404 });
   }
 
@@ -95,5 +101,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     },
   });
 
+  logApi(req, "/api/reviews/[id]", 200, startedAt, { reviewId: updated.id });
   return NextResponse.json(updated);
 }

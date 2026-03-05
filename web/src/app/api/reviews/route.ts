@@ -2,17 +2,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/api-auth";
 import { obstructionGrade, riskLevel, symptomBurden, treatmentStep } from "@/lib/kols";
+import { logApi } from "@/lib/api-log";
 
 export async function POST(req: NextRequest) {
+  const startedAt = Date.now();
   const auth = await requireUser();
-  if ("error" in auth) return auth.error;
+  if ("error" in auth) {
+    logApi(req, "/api/reviews", 401, startedAt);
+    return auth.error;
+  }
 
   const body = await req.json();
   const reviewYear = Number(body.reviewYear);
-  if (!body.patientId || !reviewYear) return NextResponse.json({ error: "Mangler patientId/reviewYear" }, { status: 400 });
+  if (!body.patientId || !reviewYear) {
+    logApi(req, "/api/reviews", 400, startedAt);
+    return NextResponse.json({ error: "Mangler patientId/reviewYear" }, { status: 400 });
+  }
 
   const patient = await prisma.patient.findFirst({ where: { id: body.patientId, ownerId: auth.userId } });
-  if (!patient) return NextResponse.json({ error: "Pasient ikke funnet for innlogget bruker" }, { status: 404 });
+  if (!patient) {
+    logApi(req, "/api/reviews", 404, startedAt);
+    return NextResponse.json({ error: "Pasient ikke funnet for innlogget bruker" }, { status: 404 });
+  }
 
   const generated = {
     obstructionGrade: obstructionGrade(body.fev1PercentPred),
@@ -86,5 +97,6 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  logApi(req, "/api/reviews", 200, startedAt, { reviewId: created.id });
   return NextResponse.json(created);
 }

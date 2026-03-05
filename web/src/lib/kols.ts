@@ -150,6 +150,18 @@ export function compactJournalNote(data: {
   lastRehabYear?: number | null;
   gliPreStatus?: string | null;
   gliPostStatus?: string | null;
+  gliPreFev1PctPred?: number | null;
+  gliPreFev1Z?: number | null;
+  gliPreFvcPctPred?: number | null;
+  gliPreFvcZ?: number | null;
+  gliPreRatioZ?: number | null;
+  gliPreRatioLlnPct?: number | null;
+  gliPostFev1PctPred?: number | null;
+  gliPostFev1Z?: number | null;
+  gliPostFvcPctPred?: number | null;
+  gliPostFvcZ?: number | null;
+  gliPostRatioZ?: number | null;
+  gliPostRatioLlnPct?: number | null;
   smokingActive?: boolean | null;
   heightCm?: number | null;
   weightKg?: number | null;
@@ -172,6 +184,8 @@ export function compactJournalNote(data: {
         : data.bmi < 30
           ? "overvekt"
           : "fedme";
+
+  const fmt2 = (v?: number | null) => (v == null ? "-" : v.toFixed(2));
   const obstruction = obstructionGrade(data.fev1PercentPred);
   const sym = symptomBurden(data.catScore, data.mmrc);
   const risk = riskLevel(data.exacerbationsLast12m, data.hospitalizationsLast12m);
@@ -200,8 +214,11 @@ export function compactJournalNote(data: {
     `- Post-test FVC: ${data.postFvcL ?? "mangler"} L`,
     `- Post-test FEV1/FVC: ${data.postFev1Fvc ?? "mangler"} %`,
     `- GLI grunnlag: alder ${data.gliAge ?? "mangler"}, kjønn ${data.gliSex ?? "mangler"}, etnisitet-kode ${data.gliEthnicity ?? "mangler"}`,
-    `- GLI vurdering pre-test: ${data.gliPreStatus ?? "ikke beregnet"}`,
-    `- GLI vurdering post-test: ${data.gliPostStatus ?? "ikke beregnet"}`,
+    "",
+    "GLI-2012 oppsummering",
+    `- Pre-test: FEV1 %pred ${fmt2(data.gliPreFev1PctPred)}, z ${fmt2(data.gliPreFev1Z)}; FVC %pred ${fmt2(data.gliPreFvcPctPred)}, z ${fmt2(data.gliPreFvcZ)}; FEV1/FVC z ${fmt2(data.gliPreRatioZ)}, LLN ${fmt2(data.gliPreRatioLlnPct)}% (${data.gliPreStatus ?? "ikke beregnet"})`,
+    `- Post-test: FEV1 %pred ${fmt2(data.gliPostFev1PctPred)}, z ${fmt2(data.gliPostFev1Z)}; FVC %pred ${fmt2(data.gliPostFvcPctPred)}, z ${fmt2(data.gliPostFvcZ)}; FEV1/FVC z ${fmt2(data.gliPostRatioZ)}, LLN ${fmt2(data.gliPostRatioLlnPct)}% (${data.gliPostStatus ?? "ikke beregnet"})`,
+    "",
     `- Røyker nå: ${data.smokingActive == null ? "ikke registrert" : data.smokingActive ? "Ja" : "Nei"}`,
     `- Høyde/vekt/BMI: ${data.heightCm ?? "mangler"} cm / ${data.weightKg ?? "mangler"} kg / ${data.bmi == null ? "mangler" : data.bmi.toFixed(2)} (${bmiCategory})`,
     `- Røntgen thorax sist tatt: ${data.chestXrayMonth && data.chestXrayYear ? `${String(data.chestXrayMonth).padStart(2, "0")}/${data.chestXrayYear}` : (data.chestXrayYear ?? "ikke registrert")}`,

@@ -409,9 +409,9 @@ export default function EditReviewPage() {
         <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <div style={{ border: "1px solid var(--border)", borderRadius: 10, padding: 10 }}>
             <div style={{ fontWeight: 600, marginBottom: 6 }}>GLI-2012 (Pre-test)</div>
-            <div className="muted">FEV1 %pred: {gliPre ? formatNbDecimal(gliPre.fev1.percentPred, 1) : ""} · z: {gliPre ? formatNbDecimal(gliPre.fev1.zScore, 2) : ""}</div>
-            <div className="muted">FVC %pred: {gliPre ? formatNbDecimal(gliPre.fvc.percentPred, 1) : ""} · z: {gliPre ? formatNbDecimal(gliPre.fvc.zScore, 2) : ""}</div>
-            <div className="muted">FEV1/FVC z: {gliPre ? formatNbDecimal(gliPre.ratio.zScore, 2) : ""} · LLN: {gliPre ? formatNbDecimal(gliPre.ratio.lln * 100, 1) : ""}%</div>
+            <div className="muted">FEV1 %pred: {gliPre ? formatNbDecimal(gliPre.fev1.percentPred, 2) : ""} · z: {gliPre ? formatNbDecimal(gliPre.fev1.zScore, 2) : ""}</div>
+            <div className="muted">FVC %pred: {gliPre ? formatNbDecimal(gliPre.fvc.percentPred, 2) : ""} · z: {gliPre ? formatNbDecimal(gliPre.fvc.zScore, 2) : ""}</div>
+            <div className="muted">FEV1/FVC z: {gliPre ? formatNbDecimal(gliPre.ratio.zScore, 2) : ""} · LLN: {gliPre ? formatNbDecimal(gliPre.ratio.lln * 100, 2) : ""}%</div>
             <div style={{ marginTop: 6, fontWeight: 600, color: gliPre && gliPre.ratio.zScore < -1.645 ? "#b42318" : "#067647" }}>
               {gliPre ? gliFlag(gliPre.ratio.zScore) : ""}
             </div>
@@ -419,9 +419,9 @@ export default function EditReviewPage() {
 
           <div style={{ border: "1px solid var(--border)", borderRadius: 10, padding: 10 }}>
             <div style={{ fontWeight: 600, marginBottom: 6 }}>GLI-2012 (Post-test)</div>
-            <div className="muted">FEV1 %pred: {gliPost ? formatNbDecimal(gliPost.fev1.percentPred, 1) : ""} · z: {gliPost ? formatNbDecimal(gliPost.fev1.zScore, 2) : ""}</div>
-            <div className="muted">FVC %pred: {gliPost ? formatNbDecimal(gliPost.fvc.percentPred, 1) : ""} · z: {gliPost ? formatNbDecimal(gliPost.fvc.zScore, 2) : ""}</div>
-            <div className="muted">FEV1/FVC z: {gliPost ? formatNbDecimal(gliPost.ratio.zScore, 2) : ""} · LLN: {gliPost ? formatNbDecimal(gliPost.ratio.lln * 100, 1) : ""}%</div>
+            <div className="muted">FEV1 %pred: {gliPost ? formatNbDecimal(gliPost.fev1.percentPred, 2) : ""} · z: {gliPost ? formatNbDecimal(gliPost.fev1.zScore, 2) : ""}</div>
+            <div className="muted">FVC %pred: {gliPost ? formatNbDecimal(gliPost.fvc.percentPred, 2) : ""} · z: {gliPost ? formatNbDecimal(gliPost.fvc.zScore, 2) : ""}</div>
+            <div className="muted">FEV1/FVC z: {gliPost ? formatNbDecimal(gliPost.ratio.zScore, 2) : ""} · LLN: {gliPost ? formatNbDecimal(gliPost.ratio.lln * 100, 2) : ""}%</div>
             <div style={{ marginTop: 6, fontWeight: 600, color: gliPost && gliPost.ratio.zScore < -1.645 ? "#b42318" : "#067647" }}>
               {gliPost ? gliFlag(gliPost.ratio.zScore) : ""}
             </div>

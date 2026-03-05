@@ -2,19 +2,38 @@
 
 Browser-basert KOLS-årskontroll som eget program med egen database.
 
-## Hva som er implementert (MVP)
+## Hva som er implementert
 - Innlogging med epost + passord (én bruker per epost)
-- Pasientoppslag og opprettelse via **pasient-ID (pseudonym)**
+- Pasientoppslag/opprettelse via **pasient-ID (pseudonym)**
+  - eksakt søk + forslag ved delvis treff (pasient-ID/navn)
 - Opprett ny årskontroll
 - "Nytt skjema fra forrige år" med korrekt nullstilling av felt
-- Automatisk klassifisering:
+- CAT-modul i egen fane (slider 0–5, auto-sum)
+  - lagring oppdaterer hovedskjema og lukker CAT-fane automatisk
+- Spirometri utvidet med pre-/post-test
+  - responstest (SABA/SAMA)
+  - reversibilitet (ml og %)
+  - FEV1/FVC vises i prosent
+- GLI-2012 støtte (pre og post)
+  - %pred, z-score, LLN og tydelig status (Under LLN / Innenfor normalområde)
+- Utvidede kliniske felter:
+  - røykestatus (ja/nei)
+  - høyde/vekt/BMI (auto)
+  - røntgen thorax måned + år
+  - dato for spirometri
+  - dato for utfylling
+  - fysioterapi (ja/nei)
+  - siste rehabiliteringsopphold (år)
+  - plan/tiltak (fritekst)
+- Automatisk klassifisering og behandlingsforslag
   - symptombelastning (CAT/mMRC)
   - risikonivå (eksaserbasjoner/innleggelser)
-  - obstruksjonsgrad (FEV1 % pred)
-  - behandlingsforslag (trinnvis stabil KOLS)
-- Eksport:
-  - kompakt journaltekst (copy/paste)
-  - enkel PDF
+  - obstruksjonsgrad
+  - forslag inkluderer også røykeslutt, fysioterapi/rehab, ernæring og vaksiner
+- Eksport
+  - strukturert journaltekst (copy/paste)
+  - PDF med samme innhold
+  - GLI-oppsummering med 2 desimaler
 
 ## Ikke-kopierbare felt ved "nytt fra forrige år"
 - CAT
@@ -75,14 +94,17 @@ docker compose up -d --build
 
 App: `http://localhost:3011`
 
-## API (MVP)
+## API
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `POST /api/auth/logout`
 - `GET /api/patients?patientCode=...`
+- `GET /api/patients/search?q=...`
 - `POST /api/patients`
 - `POST /api/reviews`
 - `POST /api/reviews/clone`
+- `GET /api/reviews/:id`
+- `PUT /api/reviews/:id`
 - `GET /api/reviews/:id/export/text`
 - `GET /api/reviews/:id/export/pdf`
 
@@ -96,7 +118,7 @@ nohup pnpm dev > /tmp/kols-dev.log 2>&1 &
 ```
 Stopp igjen:
 ```bash
-pkill -f "next dev -p 3010"
+pkill -f "next dev"
 ```
 
 ### Hvis databasen ikke kjører

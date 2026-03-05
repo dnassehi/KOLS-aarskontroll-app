@@ -7,6 +7,7 @@ Dette dokumentet beskriver hvilke oppgaver de ulike agent-rollene forventes å u
 - Automatikk er beslutningsstøtte, ikke erstatning for klinisk skjønn.
 - Endringer i klassifisering/behandlingsregler skal dokumenteres i commit-melding og changelog.
 - Ingen hardkodede hemmeligheter.
+- Eksport (TXT/PDF) skal alltid holdes synkron med nye felter i skjemaet.
 
 ---
 
@@ -113,6 +114,10 @@ Dette dokumentet beskriver hvilke oppgaver de ulike agent-rollene forventes å u
 3. Verifiser reset: CAT/mMRC/eksaserbasjoner/spirometri
 4. Verifiser obstruksjonsgrad ved FEV1%=85/65/40/25
 5. Verifiser behandlingstrinn ved symptom- og risikoprofiler
+6. Verifiser CAT-fane (lagre → hovedfane refresh + auto-lukk)
+7. Verifiser GLI-visning (pre/post, LLN-status)
+8. Verifiser eksport (TXT/PDF) inkluderer nye felter
+9. Verifiser delvis pasientsøk gir forslagliste
 
 ### Definition of Done
 - Alle prioriterte testcases passerer
@@ -126,14 +131,17 @@ Dette dokumentet beskriver hvilke oppgaver de ulike agent-rollene forventes å u
 - Lokal/dev setup
 - Docker compose for app + database
 - Enkel deploy-oppskrift
+- API-observability (strukturert request-logging på sentrale endepunkt)
 
 ### Leveranser
 - `docker-compose.yml`
 - `.env.example`
 - Runbook i `docs/deploy.md`
+- Smoke test-script: `scripts/e2e_smoke_test.py`
 
 ### Definition of Done
 - Ny utvikler kan starte systemet lokalt på <15 min
+- Smoke test passerer etter deploy
 
 ---
 

@@ -93,7 +93,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     comorbidities,
     meds,
     treatmentSuggestion: review.treatmentStepSuggestion,
-    plan: review.planOrTiltak || review.notes,
+    plan: review.planOrTiltak,
+    notes: review.notes,
   });
 
   const pdf = await PDFDocument.create();

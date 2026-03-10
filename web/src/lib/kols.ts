@@ -174,6 +174,7 @@ export function compactJournalNote(data: {
   meds: string[];
   treatmentSuggestion?: string | null;
   plan?: string | null;
+  notes?: string | null;
 }) {
   const bmiCategory = data.bmi == null
     ? "ikke vurderbar"
@@ -233,6 +234,9 @@ export function compactJournalNote(data: {
     `- ${data.treatmentSuggestion || "Ikke tilgjengelig"}`,
     "",
     "Plan / tiltak (manuelt)",
-    `- ${data.plan || "Revurdering ved neste kontroll."}`,
+    `- ${data.plan || "Ikke registrert"}`,
+    "",
+    "Notat",
+    `- ${data.notes || "Ikke registrert"}`,
   ].join("\n");
 }

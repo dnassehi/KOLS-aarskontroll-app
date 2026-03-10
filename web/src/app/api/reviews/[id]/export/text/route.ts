@@ -92,7 +92,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     comorbidities,
     meds,
     treatmentSuggestion: review.treatmentStepSuggestion,
-    plan: review.planOrTiltak || review.notes,
+    plan: review.planOrTiltak,
+    notes: review.notes,
   });
 
   return new NextResponse(text, { headers: { "content-type": "text/plain; charset=utf-8" } });

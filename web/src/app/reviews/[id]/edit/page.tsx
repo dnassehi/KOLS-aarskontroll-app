@@ -40,6 +40,7 @@ export default function EditReviewPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [lastDraftSavedAt, setLastDraftSavedAt] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState<FormState>({});
   const [meta, setMeta] = useState<{ patientCode?: string; reviewYear?: number }>({});
@@ -54,7 +55,7 @@ export default function EditReviewPage() {
       }
       const j = await r.json();
       setMeta({ patientCode: j.patient?.patientCode, reviewYear: j.reviewYear });
-      setForm({
+      const serverForm: FormState = {
         catScore: j.catScore ?? "",
         mmrc: j.mmrc ?? "",
         exacerbationsLast12m: j.exacerbationsLast12m ?? "",
@@ -103,7 +104,17 @@ export default function EditReviewPage() {
         notes: j.notes ?? "",
         treatmentStepSuggestion: j.treatmentStepSuggestion ?? "",
         planOrTiltak: j.planOrTiltak ?? "",
-      });
+      };
+
+      let draft: Partial<FormState> = {};
+      try {
+        const rawDraft = localStorage.getItem(`reviewDraft-${id}`);
+        if (rawDraft) draft = JSON.parse(rawDraft);
+      } catch {
+        // ignore malformed draft
+      }
+
+      setForm({ ...serverForm, ...draft });
       setLoading(false);
     })();
   }, [id]);
@@ -111,12 +122,23 @@ export default function EditReviewPage() {
   useEffect(() => {
     const key = `catSaved-${id}`;
 
-    const maybeRefresh = () => {
+    const refreshCatFields = async () => {
+      const r = await fetch(`/api/reviews/${id}`);
+      if (!r.ok) return;
+      const j = await r.json();
+      setForm((prev) => ({
+        ...prev,
+        catScore: j.catScore ?? "",
+      }));
+      setMsg("CAT oppdatert i skjemaet uten å miste usendte endringer.");
+    };
+
+    const maybeRefreshCat = () => {
       try {
         const v = localStorage.getItem(key);
         if (v) {
           localStorage.removeItem(key);
-          window.location.reload();
+          void refreshCatFields();
         }
       } catch {}
     };
@@ -124,20 +146,34 @@ export default function EditReviewPage() {
     const onMessage = (ev: MessageEvent) => {
       if (ev.origin !== window.location.origin) return;
       if (ev.data?.type === "cat-saved" && ev.data?.reviewId === id) {
-        window.location.reload();
+        void refreshCatFields();
       }
     };
 
-    window.addEventListener("focus", maybeRefresh);
-    document.addEventListener("visibilitychange", maybeRefresh);
+    window.addEventListener("focus", maybeRefreshCat);
+    document.addEventListener("visibilitychange", maybeRefreshCat);
     window.addEventListener("message", onMessage);
 
     return () => {
-      window.removeEventListener("focus", maybeRefresh);
-      document.removeEventListener("visibilitychange", maybeRefresh);
+      window.removeEventListener("focus", maybeRefreshCat);
+      document.removeEventListener("visibilitychange", maybeRefreshCat);
       window.removeEventListener("message", onMessage);
     };
   }, [id]);
+
+  useEffect(() => {
+    if (loading) return;
+    const timeout = setTimeout(() => {
+      try {
+        localStorage.setItem(`reviewDraft-${id}`, JSON.stringify(form));
+        setLastDraftSavedAt(new Date().toLocaleTimeString("no-NO", { hour: "2-digit", minute: "2-digit" }));
+      } catch {
+        // ignore storage errors
+      }
+    }, 350);
+
+    return () => clearTimeout(timeout);
+  }, [form, id, loading]);
 
   function setValue(name: string, value: string | number | boolean) {
     setForm((f) => ({ ...f, [name]: value }));
@@ -316,6 +352,13 @@ export default function EditReviewPage() {
       setMsg(j.error || "Lagring feilet");
       setSaving(false);
       return;
+    }
+
+    try {
+      localStorage.removeItem(`reviewDraft-${id}`);
+      setLastDraftSavedAt(null);
+    } catch {
+      // ignore storage errors
     }
 
     const code = meta.patientCode ? encodeURIComponent(meta.patientCode) : "";
@@ -520,6 +563,11 @@ export default function EditReviewPage() {
           <button onClick={save} disabled={saving} className="button-primary">{saving ? "Lagrer..." : "Ferdig (lagre skjema)"}</button>
           <a href="/" className="button-ghost" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border)" }}>Tilbake til pasientsiden</a>
         </div>
+        {lastDraftSavedAt && (
+          <div className="muted" style={{ marginTop: 8, fontSize: 12 }}>
+            Utkast lagret kl. {lastDraftSavedAt}
+          </div>
+        )}
       </div>
 
       {msg && <div className="message">{msg}</div>}

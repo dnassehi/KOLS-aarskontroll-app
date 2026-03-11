@@ -11,6 +11,9 @@ enum SmokeStatus {
   ALDRI
   TIDLIGERE
   NAVAERENDE
+  DAGLIG
+  AV_OG_TIL
+  UKJENT
 }
 
 model User {

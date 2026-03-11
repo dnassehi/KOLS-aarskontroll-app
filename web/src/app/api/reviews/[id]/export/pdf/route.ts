@@ -82,6 +82,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     gliPostFvcZ: gliPost?.fvc.zScore ?? null,
     gliPostRatioZ: gliPost?.ratio.zScore ?? null,
     gliPostRatioLlnPct: gliPost ? gliPost.ratio.lln * 100 : null,
+    smokeStatus: review.smokeStatus,
     smokingActive: review.smokingActive,
     heightCm: review.heightCm,
     weightKg: review.weightKg,

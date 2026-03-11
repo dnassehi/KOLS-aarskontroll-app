@@ -329,7 +329,12 @@ export default function EditReviewPage() {
       spo2: parseNbNumber(form.spo2),
       eosinophils: parseNbNumber(form.eosinophils),
       packYears: parseNbNumber(form.packYears),
-      smokingActive: form.smokingActive === "" ? null : form.smokingActive === true || form.smokingActive === "true",
+      smokingActive:
+        form.smokeStatus === "DAGLIG" || form.smokeStatus === "AV_OG_TIL"
+          ? true
+          : form.smokeStatus === "ALDRI" || form.smokeStatus === "TIDLIGERE"
+            ? false
+            : null,
       heightCm: parseNbNumber(form.heightCm),
       weightKg: parseNbNumber(form.weightKg),
       bmi: autoBmi == null ? null : Number(autoBmi.toFixed(2)),
@@ -475,11 +480,14 @@ export default function EditReviewPage() {
       <section className="card">
         <h3>Røyking, antropometri og komorbiditet</h3>
         <div className="grid grid-2">
-          <label>Røykestatus (ja/nei)
-            <select value={String(form.smokingActive ?? "")} onChange={(e) => setValue("smokingActive", e.target.value)}>
+          <label>Røykestatus
+            <select value={String(form.smokeStatus ?? "")} onChange={(e) => setValue("smokeStatus", e.target.value)}>
               <option value="">Ikke registrert</option>
-              <option value="true">Ja</option>
-              <option value="false">Nei</option>
+              <option value="DAGLIG">Daglig røyker</option>
+              <option value="AV_OG_TIL">Av og til røyker</option>
+              <option value="TIDLIGERE">Eks-røyker</option>
+              <option value="ALDRI">Aldri røykt</option>
+              <option value="UKJENT">Røykestatus ukjent</option>
             </select>
           </label>
           <label>Røntgen thorax (måned)

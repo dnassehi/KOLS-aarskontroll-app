@@ -7,6 +7,7 @@ export type KolsInput = {
   eosinophils?: number | null;
   spo2?: number | null;
   smokingActive?: boolean | null;
+  smokeStatus?: string | null;
   bmi?: number | null;
   receivesPhysiotherapy?: boolean | null;
   lastRehabYear?: number | null;
@@ -163,6 +164,7 @@ export function compactJournalNote(data: {
   gliPostRatioZ?: number | null;
   gliPostRatioLlnPct?: number | null;
   smokingActive?: boolean | null;
+  smokeStatus?: string | null;
   heightCm?: number | null;
   weightKg?: number | null;
   bmi?: number | null;
@@ -190,6 +192,14 @@ export function compactJournalNote(data: {
   const obstruction = obstructionGrade(data.fev1PercentPred);
   const sym = symptomBurden(data.catScore, data.mmrc);
   const risk = riskLevel(data.exacerbationsLast12m, data.hospitalizationsLast12m);
+  const smokeStatusLabel: Record<string, string> = {
+    DAGLIG: "Daglig røyker",
+    AV_OG_TIL: "Av og til røyker",
+    TIDLIGERE: "Eks-røyker",
+    ALDRI: "Aldri røykt",
+    UKJENT: "Røykestatus ukjent",
+    NAVAERENDE: "Nåværende røyker",
+  };
   return [
     `KOLS årskontroll ${data.year}`,
     "",
@@ -220,7 +230,7 @@ export function compactJournalNote(data: {
     `- Pre-test: FEV1 %pred ${fmt2(data.gliPreFev1PctPred)}, z ${fmt2(data.gliPreFev1Z)}; FVC %pred ${fmt2(data.gliPreFvcPctPred)}, z ${fmt2(data.gliPreFvcZ)}; FEV1/FVC z ${fmt2(data.gliPreRatioZ)}, LLN ${fmt2(data.gliPreRatioLlnPct)}% (${data.gliPreStatus ?? "ikke beregnet"})`,
     `- Post-test: FEV1 %pred ${fmt2(data.gliPostFev1PctPred)}, z ${fmt2(data.gliPostFev1Z)}; FVC %pred ${fmt2(data.gliPostFvcPctPred)}, z ${fmt2(data.gliPostFvcZ)}; FEV1/FVC z ${fmt2(data.gliPostRatioZ)}, LLN ${fmt2(data.gliPostRatioLlnPct)}% (${data.gliPostStatus ?? "ikke beregnet"})`,
     "",
-    `- Røyker nå: ${data.smokingActive == null ? "ikke registrert" : data.smokingActive ? "Ja" : "Nei"}`,
+    `- Røykestatus: ${data.smokeStatus ? (smokeStatusLabel[data.smokeStatus] ?? data.smokeStatus) : "ikke registrert"}`,
     `- Høyde/vekt/BMI: ${data.heightCm ?? "mangler"} cm / ${data.weightKg ?? "mangler"} kg / ${data.bmi == null ? "mangler" : data.bmi.toFixed(2)} (${bmiCategory})`,
     `- Røntgen thorax sist tatt: ${data.chestXrayMonth && data.chestXrayYear ? `${String(data.chestXrayMonth).padStart(2, "0")}/${data.chestXrayYear}` : (data.chestXrayYear ?? "ikke registrert")}`,
     "",

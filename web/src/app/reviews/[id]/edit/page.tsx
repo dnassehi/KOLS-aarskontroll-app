@@ -406,7 +406,7 @@ export default function EditReviewPage() {
         <h3>Spirometri</h3>
         <p className="muted">Bruk norske desimaler (komma), f.eks. 3,1</p>
         <div className="grid grid-2">
-          <label>Pre-test FEV1 (L/s) <input value={String(form.fev1L ?? "")} onChange={(e) => setValue("fev1L", e.target.value)} />{errors.fev1L && <div className="error">{errors.fev1L}</div>}</label>
+          <label>Pre-test FEV1 (L) <input value={String(form.fev1L ?? "")} onChange={(e) => setValue("fev1L", e.target.value)} />{errors.fev1L && <div className="error">{errors.fev1L}</div>}</label>
           <label>Pre-test FEV1 % pred <input value={String(form.fev1PercentPred ?? "")} onChange={(e) => setValue("fev1PercentPred", e.target.value)} />{errors.fev1PercentPred && <div className="error">{errors.fev1PercentPred}</div>}</label>
           <label>Pre-test FVC (L) <input value={String(form.fvcL ?? "")} onChange={(e) => setValue("fvcL", e.target.value)} />{errors.fvcL && <div className="error">{errors.fvcL}</div>}</label>
           <label>Pre-test FEV1/FVC (%) (auto) <input value={autoFev1Fvc == null ? "" : formatNbDecimal(autoFev1Fvc, 1)} readOnly />{errors.fev1Fvc && <div className="error">{errors.fev1Fvc}</div>}</label>
@@ -414,7 +414,7 @@ export default function EditReviewPage() {
           <label><input type="checkbox" checked={Boolean(form.responseTestSaba)} onChange={(e) => setValue("responseTestSaba", e.target.checked)} /> Responstest gitt med SABA</label>
           <label><input type="checkbox" checked={Boolean(form.responseTestSama)} onChange={(e) => setValue("responseTestSama", e.target.checked)} /> Responstest gitt med SAMA</label>
 
-          <label>Post-test FEV1 (L/s) <input value={String(form.postFev1L ?? "")} onChange={(e) => setValue("postFev1L", e.target.value)} />{errors.postFev1L && <div className="error">{errors.postFev1L}</div>}</label>
+          <label>Post-test FEV1 (L) <input value={String(form.postFev1L ?? "")} onChange={(e) => setValue("postFev1L", e.target.value)} />{errors.postFev1L && <div className="error">{errors.postFev1L}</div>}</label>
           <label>Post-test FEV1 % pred <input value={String(form.postFev1PercentPred ?? "")} onChange={(e) => setValue("postFev1PercentPred", e.target.value)} />{errors.postFev1PercentPred && <div className="error">{errors.postFev1PercentPred}</div>}</label>
           <label>Post-test FVC (L) <input value={String(form.postFvcL ?? "")} onChange={(e) => setValue("postFvcL", e.target.value)} />{errors.postFvcL && <div className="error">{errors.postFvcL}</div>}</label>
           <label>Post-test FEV1/FVC (%) (auto) <input value={autoPostFev1Fvc == null ? "" : formatNbDecimal(autoPostFev1Fvc, 1)} readOnly />{errors.postFev1Fvc && <div className="error">{errors.postFev1Fvc}</div>}</label>

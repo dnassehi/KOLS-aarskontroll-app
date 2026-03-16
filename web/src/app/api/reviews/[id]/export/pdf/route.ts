@@ -99,13 +99,24 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   });
 
   const pdf = await PDFDocument.create();
-  const page = pdf.addPage([595, 842]);
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 
-  page.drawText("KOLS årskontroll", { x: 50, y: 800, size: 20, font: bold, color: rgb(0.1, 0.2, 0.45) });
-  page.drawText(`Pasient-ID: ${review.patient.patientCode}`, { x: 50, y: 770, size: 12, font });
-  page.drawText(`År: ${review.reviewYear}`, { x: 50, y: 752, size: 12, font });
+  const addPage = (continued = false) => {
+    const p = pdf.addPage([595, 842]);
+    p.drawText(continued ? "KOLS årskontroll (forts.)" : "KOLS årskontroll", {
+      x: 50,
+      y: 800,
+      size: 20,
+      font: bold,
+      color: rgb(0.1, 0.2, 0.45),
+    });
+    p.drawText(`Pasient-ID: ${review.patient.patientCode}`, { x: 50, y: 770, size: 12, font });
+    p.drawText(`År: ${review.reviewYear}`, { x: 50, y: 752, size: 12, font });
+    return p;
+  };
+
+  let page = addPage(false);
 
   const wrapLine = (line: string, maxLen = 90) => {
     if (!line) return [""];
@@ -131,10 +142,19 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
   let y = 720;
   for (const line of lines) {
+    const lineHeight = line ? 15 : 10;
+    if (y < 60) {
+      page = addPage(true);
+      y = 720;
+    }
     const isSectionHeader = !!line && !line.startsWith("-");
-    page.drawText(line || " ", { x: 50, y, size: isSectionHeader ? 12 : 11, font: isSectionHeader ? bold : font });
-    y -= line ? 15 : 10;
-    if (y < 60) break;
+    page.drawText(line || " ", {
+      x: 50,
+      y,
+      size: isSectionHeader ? 12 : 11,
+      font: isSectionHeader ? bold : font,
+    });
+    y -= lineHeight;
   }
 
   const bytes = await pdf.save();

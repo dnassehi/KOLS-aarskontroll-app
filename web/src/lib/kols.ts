@@ -189,6 +189,7 @@ export function compactJournalNote(data: {
           : "fedme";
 
   const fmt2 = (v?: number | null) => (v == null ? "-" : v.toFixed(2));
+  const fmt2OrMissing = (v?: number | null) => (v == null ? "mangler" : v.toFixed(2));
   const obstruction = obstructionGrade(data.fev1PercentPred);
   const sym = symptomBurden(data.catScore, data.mmrc);
   const risk = riskLevel(data.exacerbationsLast12m, data.hospitalizationsLast12m);
@@ -215,15 +216,15 @@ export function compactJournalNote(data: {
     "Spirometri og målinger",
     `- Dato for utfylling: ${data.reviewDate ?? "ikke registrert"}`,
     `- Dato for spirometri: ${data.spirometryDate ?? "ikke registrert"}`,
-    `- Pre-test FEV1: ${data.fev1L ?? "mangler"} L`,
+    `- Pre-test FEV1: ${fmt2OrMissing(data.fev1L)} L`,
     `- Pre-test FEV1 % pred: ${data.fev1PercentPred ?? "mangler"}`,
-    `- Pre-test FVC: ${data.fvcL ?? "mangler"} L`,
-    `- Pre-test FEV1/FVC: ${data.fev1Fvc ?? "mangler"} %`,
+    `- Pre-test FVC: ${fmt2OrMissing(data.fvcL)} L`,
+    `- Pre-test FEV1/FVC: ${fmt2OrMissing(data.fev1Fvc)} %`,
     `- Responstest med: ${(data.responseTestSaba ? "SABA" : "")}${data.responseTestSaba && data.responseTestSama ? " + " : ""}${(data.responseTestSama ? "SAMA" : "") || "ikke registrert"}`,
-    `- Post-test FEV1: ${data.postFev1L ?? "mangler"} L`,
+    `- Post-test FEV1: ${fmt2OrMissing(data.postFev1L)} L`,
     `- Post-test FEV1 % pred: ${data.postFev1PercentPred ?? "mangler"}`,
-    `- Post-test FVC: ${data.postFvcL ?? "mangler"} L`,
-    `- Post-test FEV1/FVC: ${data.postFev1Fvc ?? "mangler"} %`,
+    `- Post-test FVC: ${fmt2OrMissing(data.postFvcL)} L`,
+    `- Post-test FEV1/FVC: ${fmt2OrMissing(data.postFev1Fvc)} %`,
     `- GLI grunnlag: alder ${data.gliAge ?? "mangler"}, kjønn ${data.gliSex ?? "mangler"}, etnisitet-kode ${data.gliEthnicity ?? "mangler"}`,
     "",
     "GLI-2012 oppsummering",

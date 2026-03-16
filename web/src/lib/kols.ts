@@ -201,6 +201,10 @@ export function compactJournalNote(data: {
     UKJENT: "Røykestatus ukjent",
     NAVAERENDE: "Nåværende røyker",
   };
+  const plainMultiline = (v?: string | null, fallback = "Ikke registrert") => {
+    const txt = (v ?? "").trim();
+    return txt || fallback;
+  };
   return [
     `KOLS årskontroll ${data.year}`,
     "",
@@ -245,9 +249,9 @@ export function compactJournalNote(data: {
     `- ${data.treatmentSuggestion || "Ikke tilgjengelig"}`,
     "",
     "Plan / tiltak (manuelt)",
-    `- ${data.plan || "Ikke registrert"}`,
+    plainMultiline(data.plan),
     "",
     "Notat",
-    `- ${data.notes || "Ikke registrert"}`,
+    plainMultiline(data.notes),
   ].join("\n");
 }

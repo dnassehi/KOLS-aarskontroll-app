@@ -136,23 +136,35 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     return out;
   };
 
-  const lines = text
-    .split("\n")
-    .flatMap((line) => wrapLine(line));
+  const sectionHeaders = new Set([
+    `KOLS årskontroll ${review.reviewYear}`,
+    "Symptomer og risiko",
+    "Spirometri og målinger",
+    "GLI-2012 oppsummering",
+    "Komorbiditet og behandling",
+    "Forslag til videre behandling (automatisk)",
+    "Plan / tiltak (manuelt)",
+    "Notat",
+  ]);
+
+  const lines = text.split("\n").flatMap((rawLine) => {
+    const wrapped = wrapLine(rawLine);
+    const isSectionHeader = sectionHeaders.has(rawLine.trim());
+    return wrapped.map((segment) => ({ text: segment, isSectionHeader }));
+  });
 
   let y = 720;
   for (const line of lines) {
-    const lineHeight = line ? 15 : 10;
+    const lineHeight = line.text ? 15 : 10;
     if (y < 60) {
       page = addPage(true);
       y = 720;
     }
-    const isSectionHeader = !!line && !line.startsWith("-");
-    page.drawText(line || " ", {
+    page.drawText(line.text || " ", {
       x: 50,
       y,
-      size: isSectionHeader ? 12 : 11,
-      font: isSectionHeader ? bold : font,
+      size: line.isSectionHeader ? 12 : 11,
+      font: line.isSectionHeader ? bold : font,
     });
     y -= lineHeight;
   }

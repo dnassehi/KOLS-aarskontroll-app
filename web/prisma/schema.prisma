@@ -125,6 +125,19 @@ model AnnualReview {
   riskLevel        String?
   treatmentStepSuggestion String?
 
+  auditQ1  Int?
+  auditQ2  Int?
+  auditQ3  Int?
+  auditQ4  Int?
+  auditQ5  Int?
+  auditQ6  Int?
+  auditQ7  Int?
+  auditQ8  Int?
+  auditQ9  Int?
+  auditQ10 Int?
+  auditCScore Int?
+  auditScore  Int?
+
   notes String?
   planOrTiltak String?
 

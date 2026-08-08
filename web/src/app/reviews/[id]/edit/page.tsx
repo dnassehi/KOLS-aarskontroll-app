@@ -104,6 +104,8 @@ export default function EditReviewPage() {
         notes: j.notes ?? "",
         treatmentStepSuggestion: j.treatmentStepSuggestion ?? "",
         planOrTiltak: j.planOrTiltak ?? "",
+        auditCScore: j.auditCScore ?? "",
+        auditScore: j.auditScore ?? "",
       };
 
       let draft: Partial<FormState> = {};
@@ -120,7 +122,8 @@ export default function EditReviewPage() {
   }, [id]);
 
   useEffect(() => {
-    const key = `catSaved-${id}`;
+    const catKey = `catSaved-${id}`;
+    const auditKey = `auditSaved-${id}`;
 
     const refreshCatFields = async () => {
       const r = await fetch(`/api/reviews/${id}`);
@@ -133,25 +136,40 @@ export default function EditReviewPage() {
       setMsg("CAT oppdatert i skjemaet uten å miste usendte endringer.");
     };
 
+    const refreshAuditFields = async () => {
+      const r = await fetch(`/api/reviews/${id}`);
+      if (!r.ok) return;
+      const j = await r.json();
+      setForm((prev) => ({
+        ...prev,
+        auditCScore: j.auditCScore ?? "",
+        auditScore: j.auditScore ?? "",
+      }));
+      setMsg("AUDIT oppdatert i skjemaet uten å miste usendte endringer.");
+    };
+
     const maybeRefreshCat = () => {
       try {
-        const v = localStorage.getItem(key);
-        if (v) {
-          localStorage.removeItem(key);
-          void refreshCatFields();
-        }
+        const v = localStorage.getItem(catKey);
+        if (v) { localStorage.removeItem(catKey); void refreshCatFields(); }
+      } catch {}
+    };
+
+    const maybeRefreshAudit = () => {
+      try {
+        const v = localStorage.getItem(auditKey);
+        if (v) { localStorage.removeItem(auditKey); void refreshAuditFields(); }
       } catch {}
     };
 
     const onMessage = (ev: MessageEvent) => {
       if (ev.origin !== window.location.origin) return;
-      if (ev.data?.type === "cat-saved" && ev.data?.reviewId === id) {
-        void refreshCatFields();
-      }
+      if (ev.data?.type === "cat-saved" && ev.data?.reviewId === id) void refreshCatFields();
+      if (ev.data?.type === "audit-saved" && ev.data?.reviewId === id) void refreshAuditFields();
     };
 
-    window.addEventListener("focus", maybeRefreshCat);
-    document.addEventListener("visibilitychange", maybeRefreshCat);
+    window.addEventListener("focus", () => { maybeRefreshCat(); maybeRefreshAudit(); });
+    document.addEventListener("visibilitychange", () => { maybeRefreshCat(); maybeRefreshAudit(); });
     window.addEventListener("message", onMessage);
 
     return () => {
@@ -380,6 +398,28 @@ export default function EditReviewPage() {
           <div className="muted">Pasient-ID: <b>{meta.patientCode}</b> · År: <b>{meta.reviewYear}</b></div>
         </div>
       </div>
+
+      <section className="card">
+        <h3>Alkohol – AUDIT</h3>
+        <div className="grid grid-2">
+          <label>AUDIT-C skår
+            <input value={String(form.auditCScore ?? "")} readOnly />
+          </label>
+          <label>Full AUDIT skår
+            <input value={String(form.auditScore ?? "")} readOnly />
+          </label>
+          <div style={{ display: "flex", alignItems: "end" }}>
+            <a
+              href={`/reviews/${id}/audit`}
+              target="_blank"
+              className="button-ghost"
+              style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border)", width: "fit-content" }}
+            >
+              Fyll ut AUDIT (åpnes i ny fane)
+            </a>
+          </div>
+        </div>
+      </section>
 
       <section className="card">
         <h3>Symptomer og forverring</h3>

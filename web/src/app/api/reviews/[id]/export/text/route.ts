@@ -95,6 +95,8 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     treatmentSuggestion: review.treatmentStepSuggestion,
     plan: review.planOrTiltak,
     notes: review.notes,
+    auditCScore: review.auditCScore,
+    auditScore: review.auditScore,
   });
 
   return new NextResponse(text, { headers: { "content-type": "text/plain; charset=utf-8" } });

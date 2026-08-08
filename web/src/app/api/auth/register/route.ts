@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, setSessionCookie, signSession } from "@/lib/auth";
+import { ensureDemoReviewForUser } from "@/lib/demo-patient";
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
@@ -12,6 +13,8 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.create({
     data: { email: String(email).toLowerCase(), passwordHash: await hashPassword(password) },
   });
+
+  await ensureDemoReviewForUser(user.id);
 
   const token = signSession(user.id, user.email);
   await setSessionCookie(token);

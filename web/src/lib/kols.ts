@@ -177,6 +177,8 @@ export function compactJournalNote(data: {
   treatmentSuggestion?: string | null;
   plan?: string | null;
   notes?: string | null;
+  auditCScore?: number | null;
+  auditScore?: number | null;
 }) {
   const bmiCategory = data.bmi == null
     ? "ikke vurderbar"
@@ -250,6 +252,10 @@ export function compactJournalNote(data: {
     "",
     "Plan / tiltak (manuelt)",
     plainMultiline(data.plan),
+    "",
+    "Alkohol (AUDIT)",
+    `- AUDIT-C skår: ${data.auditCScore ?? "ikke utført"}`,
+    `- Full AUDIT skår: ${data.auditScore ?? "ikke utført"}`,
     "",
     "Notat",
     plainMultiline(data.notes),

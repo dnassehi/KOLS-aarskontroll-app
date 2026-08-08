@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { setSessionCookie, signSession, verifyPassword } from "@/lib/auth";
+import { ensureDemoReviewForUser } from "@/lib/demo-patient";
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
@@ -11,6 +12,8 @@ export async function POST(req: NextRequest) {
 
   const ok = await verifyPassword(password, user.passwordHash);
   if (!ok) return NextResponse.json({ error: "Ugyldig innlogging" }, { status: 401 });
+
+  await ensureDemoReviewForUser(user.id);
 
   const token = signSession(user.id, user.email);
   await setSessionCookie(token);
